@@ -11,6 +11,16 @@ SWIFT-UAV  Scientific Workhorse for In-flight Field Tests – UAV
 Pelican V0.1 Developed as a senior design project at USC in the Spring of 2025.
 </p>
 
+<p align="center">
+<img src="media/2025-Fall.jpg" alt="drawing" width="700"/>
+</p>
+<p align="center">
+Pelican V0.2 furhter developed through the Summer and Fall of 2025.
+</p>
+
+
+
+
 
 
 ## Licensing and Citation
