@@ -15,7 +15,7 @@ Pelican V0.1 Developed as a senior design project at USC in the Spring of 2025.
 <img src="media/2025-Fall.jpg" alt="drawing" width="700"/>
 </p>
 <p align="center">
-Pelican V0.2 furhter developed through the Summer and Fall of 2025.
+Pelican V0.2 further developed through the Summer and Fall of 2025.
 </p>
 
 
@@ -37,7 +37,7 @@ This work is licensed under a
 
 Cite as:
 
-@Misc{ARTSLabDroneDeliveredCamera,     
+@Misc{ARTSLabSwiftUavScientific,     
   author = {{ARTS-L}ab},  
   howpublished = {GitHub},    
   title  = {SWIFT-UAV: Scientific Workhorse for In-flight Field Tests – UAV},    
