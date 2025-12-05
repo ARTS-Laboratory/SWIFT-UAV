@@ -11,3 +11,6 @@
 * Substantial rework to fuselage
 ## V0.2.3
 * Squared wing, added 20x20 structural element to fuselage
+* Design optimizations for manufacturability
+## V0.2.4
+* Design optimizations for manufacturability
