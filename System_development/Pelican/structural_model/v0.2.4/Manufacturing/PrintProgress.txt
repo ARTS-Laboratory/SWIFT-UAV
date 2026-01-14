@@ -1,7 +1,9 @@
 Printed
 LW1
 LW2
-Printing
-LW3
 LW4
+LW3
+Printing
+
 RW1
+RW4
