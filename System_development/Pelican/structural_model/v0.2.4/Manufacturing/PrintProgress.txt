@@ -1,9 +1,15 @@
 Printed
 LW1
 LW2
-LW4
 LW3
-Printing
-
+LW4
+LW5
 RW1
+RW2
 RW4
+RW5
+RW3
+Printing
+Wing Box
+Nose and 2nd fuselage section
+ 
