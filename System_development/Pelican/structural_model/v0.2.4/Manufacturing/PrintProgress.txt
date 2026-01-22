@@ -10,9 +10,14 @@ RW4
 RW5
 RW3
 Nose and 2nd fuselage section
+Wing Box
+Fuselage End 
 
 Printing
-Wing Box
-Front Cover 1
-Fuselage End 
+Last part for Fuselage
+
+Reprinting 
+RW2
+LW2
+
  
