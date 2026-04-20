@@ -43,7 +43,7 @@ Cite as:
   title  = {SWIFT-UAV: Scientific Workhorse for In-flight Field Tests – UAV},    
   groups = {{ARTS-L}ab},    
   url    = {https://github.com/ARTS-Laboratory/SWIFT-UAV},   
-  notes        = {Accessed: Month dd, yyyy},   
+  note        = {Accessed: Month dd, yyyy},   
 }
 
 
