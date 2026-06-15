@@ -7,7 +7,6 @@ SWIFT-UAV  Scientific Workhorse for In-flight Field Tests – UAV
 
 <p align="center">
 <img src="media/2026-Spring.jpg" alt="drawing" width="700"/>
-<img src="media/2026-Spring-2.jpg" alt="drawing" width="700"/>
 </p>
 <p align="center">
 Pelican V0.3 further developed through the Spring of 2026.
