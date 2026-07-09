@@ -6,33 +6,27 @@ import pygad
 
 np.random.seed(42)
 
-# ------------------------------------------------------------------------
-# 1. DESIGN CONSTANTS (UPDATED FOR REAL-SCALE UAV WHEEL)
-# ------------------------------------------------------------------------
 N_SPOKES = 12
-R_HUB_MM = 25.4 / 2
-R_RIM_MM = 97.8 / 2
-SPAN_MM = R_RIM_MM - R_HUB_MM
+HUB_RADIUS_MM = 25.4 / 2
+RIM_RADIUS_MM = 97.8 / 2
+HUB_RIM_SPAN_MM = RIM_RADIUS_MM - HUB_RADIUS_MM
 
-# FIXED DESIGN DECISION: Face width stays locked across the wheel length
-W_FIXED_MM = 22.4
+SPOKE_WIDTH_MM = 22.4
 
-E_PLA_MPA = 2300.0 # Young's Modulus of PLA
+YOUNGS_MODULUS_PLA_MPA = 2300.0 # Young's Modulus of PLA
 SIGMA_ULT_MPA = 50.0
 SAFETY_FACTOR = 1.6
 SIGMA_ALLOW_MPA = SIGMA_ULT_MPA / SAFETY_FACTOR
 RHO_PLA = 1.24e-3
 
-F_LBF = 15.0
-F_TOTAL_N = F_LBF * 4.44822
-F_SPOKE_N = F_TOTAL_N / (N_SPOKES / 3.0)
+LBSFORCE = 15.0
+FORCE_TOTAL_N = LBSFORCE * 4.44822
+FORCE_PER_SPOKE_N = FORCE_TOTAL_N / (N_SPOKES / 3.0)
 
 TARGET_DEFLECTION_MM = 1
 
-# ------------------------------------------------------------------------
-# 2. BÉZIER & GENERALIZED NUMERICAL MECHANICS ENGINE
-# ------------------------------------------------------------------------
-def generate_bezier_centerline(x1, y1, x2, y2, span=SPAN_MM, n_pts=400):
+# Cubic Bezier curve
+def generate_bezier_centerline(x1, y1, x2, y2, span=HUB_RIM_SPAN_MM, n_pts=400):
     p0 = np.array([0.0, 0.0])
     p1 = np.array([x1, y1])
     p2 = np.array([x2, y2])
@@ -48,7 +42,7 @@ def generate_bezier_centerline(x1, y1, x2, y2, span=SPAN_MM, n_pts=400):
     return pts, [p0, p1, p2, p3]
 
 
-def generalized_spoke_mechanics(pts, t_root, t_tip, w, F, E=E_PLA_MPA):
+def generalized_spoke_mechanics(pts, t_root, t_tip, w, F, E=YOUNGS_MODULUS_PLA_MPA):
     n_seg = len(pts)
     t_profile = np.linspace(t_root, t_tip, n_seg)
 
@@ -110,7 +104,7 @@ def pygad_fitness(ga_instance, solution, solution_idx):
     if np.any(np.diff(pts[:, 0]) <= 0.02):
         return -500.0
 
-    defl, sigma, mass = generalized_spoke_mechanics(pts, t_root, t_tip, W_FIXED_MM, F=F_SPOKE_N)
+    defl, sigma, mass = generalized_spoke_mechanics(pts, t_root, t_tip, SPOKE_WIDTH_MM, F=FORCE_PER_SPOKE_N)
 
     # 1. Deflection Accuracy Constraint (Keep this)
     defl_err = abs(defl - TARGET_DEFLECTION_MM) / TARGET_DEFLECTION_MM
@@ -172,13 +166,13 @@ def place_sector(poly_local, r_hub, sector_angle_deg=0.0):
 # ------------------------------------------------------------------------
 if __name__ == "__main__":
     print(f"Running Co-Optimization for Shape & Thickness ({N_SPOKES} Spokes)...")
-    print(f"Fixed Face Width: {W_FIXED_MM} mm | Driving Variable Thickness Tracker")
+    print(f"Fixed Face Width: {SPOKE_WIDTH_MM} mm | Driving Variable Thickness Tracker")
 
     # 6-Gene Search Space (x1, y1, x2, y2, t_root, t_tip)
     gene_space = [
-        {"low": 5.0, "high": SPAN_MM * 0.45},    # x1
+        {"low": 5.0, "high": HUB_RIM_SPAN_MM * 0.45},    # x1
         {"low": -55.0, "high": 55.0},            # y1
-        {"low": SPAN_MM * 0.55, "high": SPAN_MM},# x2
+        {"low": HUB_RIM_SPAN_MM * 0.55, "high": HUB_RIM_SPAN_MM},# x2
         {"low": -55.0, "high": 55.0},            # y2
         {"low": 6.0, "high": 12.0},              # t_root (Thick base allowed)
         {"low": 1.5, "high": 3.5},               # t_tip  (Thin tip allowed)
@@ -208,11 +202,11 @@ if __name__ == "__main__":
 
     # FIX 1: Correctly unpack the tuple so 'pts' is a pure NumPy array
     pts, control_polygon = generate_bezier_centerline(x1, y1, x2, y2)
-    final_defl, final_sigma, final_mass = generalized_spoke_mechanics(pts, t_root, t_tip, W_FIXED_MM, F=F_SPOKE_N)
+    final_defl, final_sigma, final_mass = generalized_spoke_mechanics(pts, t_root, t_tip, SPOKE_WIDTH_MM, F=FORCE_PER_SPOKE_N)
 
     print("\n================ EVOLVED OPTIMAL DESIGN ================")
     print(f" Spoke Count:                 {N_SPOKES}")
-    print(f" Fixed Constant Width w:      {W_FIXED_MM:.2f} mm")
+    print(f" Fixed Constant Width w:      {SPOKE_WIDTH_MM:.2f} mm")
     # FIX 2: Correct string formatting syntax from ':.2 mm' to ':.2f} mm'
     print(f" Evolved Optimal Root Thickness: {t_root:.2f} mm")
     print(f" Evolved Optimal Tip Thickness:  {t_tip:.2f} mm")
@@ -226,7 +220,7 @@ if __name__ == "__main__":
     # ---------------- POSTER GENERATION PLOTS ----------------
     # FIX 4: Feed the updated 'pts', 't_root', and 't_tip' into the tapered thickener
     spoke_poly_local = thicken_tapered(pts, t_root, t_tip)
-    spoke_poly = place_sector(spoke_poly_local, R_HUB_MM, sector_angle_deg=0.0)
+    spoke_poly = place_sector(spoke_poly_local, HUB_RADIUS_MM, sector_angle_deg=0.0)
 
     fig_all, axs = plt.subplots(2, 2, figsize=(12, 12))
     sector_half = 360.0 / N_SPOKES / 2.0
@@ -245,16 +239,16 @@ if __name__ == "__main__":
     # Subplot 2: Physical Sector with Handle Plotting
     for ang in (-sector_half, sector_half):
         axs[0, 1].plot(
-            [0, R_RIM_MM * 1.15 * np.cos(np.deg2rad(ang))],
-            [0, R_RIM_MM * 1.15 * np.sin(np.deg2rad(ang))],
+            [0, RIM_RADIUS_MM * 1.15 * np.cos(np.deg2rad(ang))],
+            [0, RIM_RADIUS_MM * 1.15 * np.sin(np.deg2rad(ang))],
             "--", color="gray", linewidth=1,
         )
-    axs[0, 1].plot(R_HUB_MM * np.cos(np.deg2rad(hub_arc)), R_HUB_MM * np.sin(np.deg2rad(hub_arc)), color="black", linewidth=2)
-    axs[0, 1].plot(R_RIM_MM * np.cos(np.deg2rad(hub_arc)), R_RIM_MM * np.sin(np.deg2rad(hub_arc)), color="black", linewidth=2)
+    axs[0, 1].plot(HUB_RADIUS_MM * np.cos(np.deg2rad(hub_arc)), HUB_RADIUS_MM * np.sin(np.deg2rad(hub_arc)), color="black", linewidth=2)
+    axs[0, 1].plot(RIM_RADIUS_MM * np.cos(np.deg2rad(hub_arc)), RIM_RADIUS_MM * np.sin(np.deg2rad(hub_arc)), color="black", linewidth=2)
     axs[0, 1].fill(spoke_poly[:, 0], spoke_poly[:, 1], color="#2e7d32", alpha=0.85, edgecolor="black")
 
     c_poly_physical = np.array(control_polygon)
-    c_poly_physical[:, 0] += R_HUB_MM
+    c_poly_physical[:, 0] += HUB_RADIUS_MM
     axs[0, 1].plot(c_poly_physical[:, 0], c_poly_physical[:, 1], "o--", color="#d32f2f", linewidth=1.5, label="Bézier Handles")
     for i, txt in enumerate(["P0", "P1", "P2", "P3"]):
         axs[0, 1].annotate(txt, (c_poly_physical[i, 0], c_poly_physical[i, 1]), textcoords="offset points", xytext=(0,8), ha='center', color="#c62828", weight='bold', fontsize=9)
@@ -265,8 +259,8 @@ if __name__ == "__main__":
     axs[0, 1].grid(alpha=0.2)
 
     # Subplot 3: Full Wheel Layout
-    axs[1, 0].plot(R_HUB_MM * np.cos(theta_full), R_HUB_MM * np.sin(theta_full), color="black", linewidth=2)
-    axs[1, 0].plot(R_RIM_MM * np.cos(theta_full), R_RIM_MM * np.sin(theta_full), color="black", linewidth=2)
+    axs[1, 0].plot(HUB_RADIUS_MM * np.cos(theta_full), HUB_RADIUS_MM * np.sin(theta_full), color="black", linewidth=2)
+    axs[1, 0].plot(RIM_RADIUS_MM * np.cos(theta_full), RIM_RADIUS_MM * np.sin(theta_full), color="black", linewidth=2)
     for k in range(N_SPOKES):
         ang = k * (360.0 / N_SPOKES)
         poly_k = rotate(spoke_poly, np.deg2rad(ang))
@@ -294,6 +288,6 @@ if __name__ == "__main__":
     print(f"P0 (Hub Start): X = 0.0, Y = 0.0")
     print(f"P1 (Handle 1) : X = {x1:.3f}, Y = {y1:.3f}")
     print(f"P2 (Handle 2) : X = {x2:.3f}, Y = {y2:.3f}")
-    print(f"P3 (Rim End)  : X = {SPAN_MM:.3f}, Y = 0.0")
+    print(f"P3 (Rim End)  : X = {HUB_RIM_SPAN_MM:.3f}, Y = 0.0")
     print(f"Root Thickness (t_root): {t_root:.3f} mm")
     print(f"Tip Thickness (t_tip)  : {t_tip:.3f} mm")
