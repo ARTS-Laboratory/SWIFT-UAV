@@ -1,15 +1,12 @@
-# SWIFT-UAV: Scientific Workhorse for In-flight Field Tests – UAV
+# Scientific Workhorse for In-flight Field Tests – UAV (SWIFT-UAV)
 
-
-SWIFT-UAV  Scientific Workhorse for In-flight Field Tests – UAV
-
-
+Repository for the open-source SWIFT-UAV being developed at the University of South Carolina. 
 
 <p align="center">
 <img src="media/2026-Spring.jpg" alt="drawing" width="800"/>
 </p>
 <p align="center">
-Pelican V0.3 further developed through the Spring of 2026.
+The SWIFT UAV (Pelican V0.3) in Spring 2026.
 </p>
 
 
