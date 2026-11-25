@@ -1,0 +1,19 @@
+# SWIFT-UAV simulation - files that stay on the local PC
+
+# Simulink build output (recreated by swift_setup / every run)
+**/cache/
+# backups the *_add.m installers write before editing a model
+**/archive/
+slprj/
+*.slxc
+*.autosave
+*.asv
+*.bak
+*~
+
+# Flight data from SITL runs. ArduPilot .BIN logs, their Mission Planner .mat
+# exports, signals.mat and the flight videos run to 50-250 MB each; GitHub
+# refuses files over 100 MB. Plots (.png) and summaries (.txt, .csv) are kept.
+**/data/runs/**/*.BIN
+**/data/runs/**/*.mat
+**/data/runs/**/*.mp4
