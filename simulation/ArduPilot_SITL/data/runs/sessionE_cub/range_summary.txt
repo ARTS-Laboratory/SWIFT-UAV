@@ -1,0 +1,6 @@
+leg     time s      km   V m/s  GS m/s  thr %     I A   mAh/km   km/Ah   Wh/km
+out        566   12.55   22.67   22.17   53.3   16.39    205.4    4.87    9.75
+back       662   15.15   22.40   22.90   51.1   16.19    196.4    5.09    8.87
+Whole flight: 33.83 km in 26.6 min, 7034 mAh / 326 Wh used, 4.81 km/Ah overall
+Cruise legs: 4.99 km/Ah, 9.27 Wh/km   |   still-air range to the 2000 mAh reserve ~38.6 km
+Plan: 7006 mAh over 33.4 km  ->  flight used +0.4 % vs plan  |  model cruise 9.56 Wh/km at 22.5 m/s

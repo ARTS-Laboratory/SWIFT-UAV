@@ -1,0 +1,3 @@
+steady stretches: 11
+full-throttle static: I 90.5 A, Pmotor 4140 W (bench 107.96 A, 5094 W)
+peak pack current: 93.1 A

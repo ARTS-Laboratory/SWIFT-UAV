@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SWIFT SITL Session D — KCUB Motor-Validation Flight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b11;--panel:#0d141e;--panel2:#111a26;--line:#1e2a3a;--text:#d8e1ec;--dim:#7f8da0;--cyan:#38bdf8;--amber:#f59e0b;--green:#34d399;--red:#f87171;--violet:#a78bfa;--mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;--sans:'IBM Plex Sans',system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#0f1f33 0,transparent 60%),var(--bg);color:var(--text);font:15px/1.6 var(--sans)}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+header .kicker{font:500 12px var(--mono);letter-spacing:.14em;color:var(--cyan);text-transform:uppercase}
+h1{font-size:30px;line-height:1.2;margin:8px 0 10px;font-weight:700}
+.lede{color:var(--dim);max-width:820px;margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:22px 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font:600 22px var(--mono);color:var(--text)}
+.stat span{font-size:12px;color:var(--dim)}
+.stat.g b{color:var(--green)}.stat.a b{color:var(--amber)}
+.bar{position:sticky;top:0;z-index:5;background:rgba(7,11,17,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin:0 -20px;padding:10px 20px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.bar nav{display:flex;flex-wrap:wrap;gap:6px}
+.bar nav a{font:500 12px var(--mono);color:var(--dim);text-decoration:none;border:1px solid var(--line);padding:4px 8px;border-radius:6px}
+.bar nav a:hover{color:var(--text);border-color:var(--cyan)}
+.addr{display:flex;align-items:center;gap:8px;margin-left:auto;font:500 12px var(--mono);color:var(--dim)}
+.addr input{background:var(--panel2);border:1px solid var(--line);color:var(--amber);font:600 13px var(--mono);padding:6px 9px;border-radius:6px;width:150px}
+.addr input:focus{outline:none;border-color:var(--amber)}
+.prog{display:flex;align-items:center;gap:8px;font:500 12px var(--mono);color:var(--dim)}
+.prog .track{width:120px;height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+.prog .fill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .3s}
+.prog button{background:none;border:1px solid var(--line);color:var(--dim);font:500 11px var(--mono);padding:3px 7px;border-radius:5px;cursor:pointer}
+section{margin-top:34px}
+h2{display:flex;align-items:center;gap:12px;font-size:20px;margin:0 0 6px}
+h2 .tag{font:600 12px var(--mono);color:var(--bg);background:var(--cyan);padding:3px 8px;border-radius:5px}
+h2 .time{margin-left:auto;font:500 12px var(--mono);color:var(--dim)}
+.sub{color:var(--dim);margin:0 0 14px;font-size:14px}
+.grid2{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+@media(max-width:880px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h3{margin:0 0 8px;font-size:14px;font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+svg .lbl{font:500 10.5px var(--mono);fill:#cbd5e1}svg .dim{fill:#7f8da0}svg .gl{stroke:#1e2a3a}
+svg.map,svg.chart{width:100%;height:auto;display:block}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--dim);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:6px 8px;border-bottom:1px solid #141e2b;vertical-align:top}
+td.n{font-family:var(--mono);text-align:right;white-space:nowrap}
+tr.grp td{font:600 11px var(--mono);color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;padding-top:12px}
+.R{color:#fda4af;font:600 11px var(--mono)}.L{color:#93c5fd;font:600 11px var(--mono)}
+.step{display:grid;grid-template-columns:28px 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0;transition:border-color .2s,opacity .2s}
+.step.done{border-color:#1f4d3c;opacity:.72}
+.step input[type=checkbox]{appearance:none;width:22px;height:22px;border:2px solid #3b4a5e;border-radius:6px;margin:2px 0 0;cursor:pointer;display:grid;place-content:center}
+.step input[type=checkbox]:checked{background:var(--green);border-color:var(--green)}
+.step input[type=checkbox]:checked::after{content:"";width:6px;height:11px;border:solid #052e1f;border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.step h4{margin:0 0 4px;font-size:15px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.where{font:600 10.5px var(--mono);padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em}
+.w-m{background:#3b2a0c;color:#fbbf24}.w-u{background:#0c2b3b;color:#7dd3fc}.w-p{background:#2a1e45;color:#c4b5fd}.w-s{background:#123227;color:#6ee7b7}.w-mp{background:#3a1720;color:#fda4af}
+.step p{margin:4px 0;color:#b8c4d3;font-size:14px}
+code{font:500 13px var(--mono);color:#e2e8f0;background:#152030;padding:1px 5px;border-radius:4px}
+.code{position:relative;margin:10px 0 4px;background:#060a10;border:1px solid var(--line);border-radius:8px}
+.code .hd{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line);font:500 11px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+.code button{background:#15202f;border:1px solid #26354a;color:var(--text);font:500 11px var(--mono);padding:3px 9px;border-radius:5px;cursor:pointer}
+.code button.ok{color:var(--green);border-color:var(--green)}
+.code pre{margin:0;padding:12px 14px;overflow-x:auto;font:500 13px/1.55 var(--mono);color:#e2e8f0}
+.code .ad{color:var(--amber)}
+.note{border-left:3px solid var(--amber);background:#1a140a;padding:8px 12px;border-radius:0 8px 8px 0;font-size:13.5px;margin:8px 0;color:#f5deb3}
+.note.bad{border-color:var(--red);background:#1c0d10;color:#fecaca}
+.note.ok{border-color:var(--green);background:#0b1a14;color:#bbf7d0}
+.timeline{position:relative;padding-left:22px}
+.timeline:before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--cyan),var(--violet),var(--green))}
+.tl{position:relative;margin:0 0 14px}
+.tl:before{content:"";position:absolute;left:-20px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--cyan)}
+.tl b{font-size:14.5px}.tl .meta{font:500 12px var(--mono);color:var(--dim);margin-left:6px}
+.tl p{margin:3px 0;color:#b8c4d3;font-size:14px}
+.tl .batt{font:500 12.5px var(--mono);color:var(--amber)}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.fig .id{font:600 11px var(--mono);color:var(--cyan)}.fig.new .id{color:var(--amber)}
+.fig h5{margin:2px 0 6px;font-size:14.5px}
+.fig ul{margin:0;padding-left:18px;color:#b8c4d3;font-size:13.5px}
+.fig .badge{font:600 10px var(--mono);color:var(--bg);background:var(--amber);padding:1px 6px;border-radius:4px;margin-left:6px}
+footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);font:500 12px var(--mono);color:var(--dim)}
+
+.click{margin:6px 0 2px;padding-left:20px;color:#b8c4d3;font-size:14px}
+.click li{margin:3px 0}
+.click b{color:var(--text)}
+kbd{font:600 12px var(--mono);background:#1b2636;border:1px solid #2c3b52;border-bottom-width:2px;border-radius:4px;padding:0 5px;color:#e2e8f0}
+.sub2{font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px}
+</style>
+</head>
+<body>
+<div style="margin:12px auto;max-width:900px;padding:10px 14px;border:1px solid #c9a227;background:#fff8e1;color:#222;font:14px/1.45 system-ui,sans-serif;border-radius:6px"><b>Archived guide.</b> The step-by-step record of how Session D was first flown by hand (Nov 2026). Since then the files have moved (<code>sitl/missions</code>, <code>sitl/ardupilot</code>, <code>sitl/run</code>) and the whole procedure is one command: <code>swift_run D</code>. <code>&lt;repo&gt;</code> = where you cloned SWIFT-UAV. See <code>docs/swift_run_README.txt</code>.</div>
+
+<div class="wrap">
+<header>
+  <div class="kicker">SWIFT UAV · ARTS Lab · Software-in-the-loop (SITL) Session D · v0.2</div>
+  <h1>Motor-validation flight from Owens Downtown (KCUB)</h1>
+  <p class="lede">ArduPlane flies the <code>swift_6dof_sitl</code> Simulink model through one AUTO mission, now on the real MAD X7215 IPE 220KV motor with a 21x10 propeller, a 120 A electronic speed controller (ESC) and a 12-cell (12S) 10 Ah pack. The flight is a full-throttle takeoff roll, a fastest-rate climb to 120 m, five steady speed steps, a figure-8, a spiral down then a spiral up, a seven-gate slalom, and Session C's right-hand pattern and autoland. Between them the legs cover 30–100% throttle, so <code>swift_motor_check</code> can line the flight up against the MAD bench table.</p>
+  <div class="stats">
+    <div class="stat"><b>RWY 13</b><span>125.6° true · 1528 m</span></div>
+    <div class="stat"><b>~17.6 km</b><span>ground distance</span></div>
+    <div class="stat"><b>~15.4 min</b><span>arm to disarm</span></div>
+    <div class="stat"><b>120 m</b><span>max above ground level (AGL)</span></div>
+    <div class="stat g"><b>100 → 57%</b><span>state of charge (SOC), estimate</span></div>
+    <div class="stat a"><b>~4.3 Ah</b><span>used · ~97 A peak (takeoff roll)</span></div>
+  </div>
+</header>
+
+<div class="bar">
+  <nav><a href="#plan">Plan</a><a href="#p0">0 Ready</a><a href="#p1">1 MATLAB</a><a href="#p2">2 Ubuntu</a><a href="#p3">3 Launch</a><a href="#p4">4 Watch</a><a href="#p5">5 End</a><a href="#p6">6 Plot</a><a href="#fix">Fixes</a></nav>
+  <div class="prog"><div class="track"><div class="fill" id="fill"></div></div><span id="pct">0 / 0</span><button id="reset" type="button">Reset</button></div>
+  <label class="addr">Windows address <input id="addr" placeholder="172.19.0.1" spellcheck="false" autocomplete="off"></label>
+</div>
+
+<section id="plan">
+  <h2><span class="tag">MAP</span>The flight plan<span class="time">swift_sitl_cub_d.waypoints · 37 items</span></h2>
+  <p class="sub">Altitudes are above the runway. The test legs run parallel to runway 13, about 1.3 km to its southwest. Numbers on the map are mission items; the violet numbers are the airspeed steps.</p>
+  <div class="grid2" style="grid-template-columns:1fr">
+    <div class="card"><h3>Planned ground track</h3><div style="max-width:820px;margin:0 auto"><svg viewBox="0 0 560 459" class="map" role="img" aria-label="Planned ground track">
+<polygon points="401.2,131.1 524.8,219.4 508.5,242.2 385.0,153.8" fill="#3b4656" stroke="#9aa7b8" stroke-width="1"/>
+<text x="433.2" y="172.1" class="lbl dim">RWY 13</text>
+<circle cx="99.6" cy="91.5" r="9.9" fill="none" stroke="rgb(210,191,80)" stroke-width="2.3" stroke-dasharray="1 0"/>
+<circle cx="84.5" cy="112.6" r="9.9" fill="none" stroke="rgb(210,191,80)" stroke-width="2.3" stroke-dasharray="1 0"/>
+<circle cx="99.6" cy="91.5" r="12.9" fill="none" stroke="rgb(178,190,116)" stroke-width="2.3" stroke-dasharray="5 3"/>
+<circle cx="84.5" cy="112.6" r="12.9" fill="none" stroke="rgb(183,190,110)" stroke-width="2.3" stroke-dasharray="5 3"/>
+<text x="92.1" y="61.1" class="lbl" text-anchor="middle">17–20 · figure-8</text>
+<text x="92.1" y="74.1" class="lbl dim" text-anchor="middle">+ spirals 95→55→100 m</text>
+<line x1="393.1" y1="142.5" x2="469.9" y2="197.4" stroke="rgb(129,190,168)" stroke-width="3" stroke-linecap="round"/>
+<line x1="469.9" y1="197.4" x2="504.0" y2="295.0" stroke="rgb(210,191,80)" stroke-width="3" stroke-linecap="round"/>
+<line x1="504.0" y1="295.0" x2="439.3" y2="334.3" stroke="rgb(235,191,54)" stroke-width="3" stroke-linecap="round"/>
+<line x1="439.3" y1="334.3" x2="406.9" y2="311.2" stroke="rgb(251,191,36)" stroke-width="3" stroke-linecap="round"/>
+<line x1="406.9" y1="311.2" x2="350.3" y2="270.7" stroke="rgb(251,191,36)" stroke-width="3" stroke-linecap="round"/>
+<line x1="350.3" y1="270.7" x2="293.7" y2="230.3" stroke="rgb(231,191,58)" stroke-width="3" stroke-linecap="round"/>
+<line x1="293.7" y1="230.3" x2="237.1" y2="189.8" stroke="rgb(210,191,80)" stroke-width="3" stroke-linecap="round"/>
+<line x1="237.1" y1="189.8" x2="180.5" y2="149.3" stroke="rgb(210,191,80)" stroke-width="3" stroke-linecap="round"/>
+<line x1="180.5" y1="149.3" x2="123.8" y2="108.9" stroke="rgb(210,191,80)" stroke-width="3" stroke-linecap="round"/>
+<line x1="123.8" y1="108.9" x2="99.6" y2="91.5" stroke="rgb(210,191,80)" stroke-width="3" stroke-linecap="round"/>
+<line x1="99.6" y1="91.5" x2="84.5" y2="112.6" stroke="rgb(214,191,76)" stroke-width="3" stroke-linecap="round"/>
+<line x1="84.5" y1="112.6" x2="96.7" y2="181.1" stroke="rgb(218,191,71)" stroke-width="3" stroke-linecap="round"/>
+<line x1="96.7" y1="181.1" x2="150.4" y2="182.8" stroke="rgb(218,191,71)" stroke-width="3" stroke-linecap="round"/>
+<line x1="150.4" y1="182.8" x2="169.5" y2="233.1" stroke="rgb(218,191,71)" stroke-width="3" stroke-linecap="round"/>
+<line x1="169.5" y1="233.1" x2="223.2" y2="234.9" stroke="rgb(218,191,71)" stroke-width="3" stroke-linecap="round"/>
+<line x1="223.2" y1="234.9" x2="242.3" y2="285.1" stroke="rgb(218,191,71)" stroke-width="3" stroke-linecap="round"/>
+<line x1="242.3" y1="285.1" x2="296.0" y2="286.9" stroke="rgb(218,191,71)" stroke-width="3" stroke-linecap="round"/>
+<line x1="296.0" y1="286.9" x2="315.0" y2="337.2" stroke="rgb(218,191,71)" stroke-width="3" stroke-linecap="round"/>
+<line x1="315.0" y1="337.2" x2="383.8" y2="343.5" stroke="rgb(186,190,107)" stroke-width="3" stroke-linecap="round"/>
+<line x1="383.8" y1="343.5" x2="444.5" y2="258.6" stroke="rgb(145,190,151)" stroke-width="3" stroke-linecap="round"/>
+<line x1="444.5" y1="258.6" x2="339.3" y2="183.5" stroke="rgb(133,190,164)" stroke-width="3" stroke-linecap="round"/>
+<line x1="339.3" y1="183.5" x2="266.6" y2="131.4" stroke="rgb(125,190,173)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/>
+<line x1="266.6" y1="131.4" x2="304.1" y2="78.9" stroke="rgb(117,190,182)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/>
+<line x1="304.1" y1="78.9" x2="344.6" y2="107.8" stroke="rgb(107,190,192)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/>
+<line x1="344.6" y1="107.8" x2="409.3" y2="154.0" stroke="rgb(79,189,223)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/>
+<circle cx="469.9" cy="197.4" r="4.2" fill="#0b1018" stroke="rgb(202,190,89)" stroke-width="2"/><text x="476.9" y="191.4" class="lbl">3<tspan class="dim"> 90 m</tspan></text>
+<circle cx="504.0" cy="295.0" r="4.2" fill="#0b1018" stroke="rgb(218,191,71)" stroke-width="2"/><text x="511.0" y="289.0" class="lbl">4<tspan class="dim"> 100 m</tspan></text>
+<circle cx="439.3" cy="334.3" r="4.2" fill="#0b1018" stroke="rgb(251,191,36)" stroke-width="2"/><text x="446.3" y="328.3" class="lbl">5<tspan class="dim"> 120 m</tspan></text>
+<circle cx="406.9" cy="311.2" r="4.2" fill="#0b1018" stroke="rgb(251,191,36)" stroke-width="2"/><text x="413.9" y="305.2" class="lbl">6<tspan class="dim"> 120 m</tspan></text>
+<circle cx="350.3" cy="270.7" r="4.2" fill="#0b1018" stroke="rgb(251,191,36)" stroke-width="2"/><text x="357.3" y="264.7" class="lbl">8<tspan class="dim"> 120 m</tspan></text>
+<circle cx="293.7" cy="230.3" r="4.2" fill="#0b1018" stroke="rgb(210,191,80)" stroke-width="2"/><text x="300.7" y="224.3" class="lbl">9<tspan class="dim"> 95 m</tspan></text>
+<circle cx="237.1" cy="189.8" r="4.2" fill="#0b1018" stroke="rgb(210,191,80)" stroke-width="2"/><text x="244.1" y="183.8" class="lbl">11<tspan class="dim"> 95 m</tspan></text>
+<circle cx="180.5" cy="149.3" r="4.2" fill="#0b1018" stroke="rgb(210,191,80)" stroke-width="2"/><text x="187.5" y="143.3" class="lbl">13<tspan class="dim"> 95 m</tspan></text>
+<circle cx="123.8" cy="108.9" r="4.2" fill="#0b1018" stroke="rgb(210,191,80)" stroke-width="2"/><text x="130.8" y="102.9" class="lbl">15<tspan class="dim"> 95 m</tspan></text>
+<circle cx="96.7" cy="181.1" r="4.2" fill="#0b1018" stroke="rgb(218,191,71)" stroke-width="2"/><text x="103.7" y="175.1" class="lbl">22<tspan class="dim"> 100 m</tspan></text>
+<circle cx="169.5" cy="233.1" r="4.2" fill="#0b1018" stroke="rgb(218,191,71)" stroke-width="2"/><text x="176.5" y="227.1" class="lbl">24<tspan class="dim"> 100 m</tspan></text>
+<circle cx="242.3" cy="285.1" r="4.2" fill="#0b1018" stroke="rgb(218,191,71)" stroke-width="2"/><text x="249.3" y="279.1" class="lbl">26<tspan class="dim"> 100 m</tspan></text>
+<circle cx="315.0" cy="337.2" r="4.2" fill="#0b1018" stroke="rgb(218,191,71)" stroke-width="2"/><text x="322.0" y="331.2" class="lbl">28<tspan class="dim"> 100 m</tspan></text>
+<circle cx="383.8" cy="343.5" r="4.2" fill="#0b1018" stroke="rgb(154,190,142)" stroke-width="2"/><text x="390.8" y="337.5" class="lbl">29<tspan class="dim"> 60 m</tspan></text>
+<circle cx="444.5" cy="258.6" r="4.2" fill="#0b1018" stroke="rgb(137,190,160)" stroke-width="2"/><text x="451.5" y="252.6" class="lbl">30<tspan class="dim"> 50 m</tspan></text>
+<circle cx="339.3" cy="183.5" r="4.2" fill="#0b1018" stroke="rgb(129,190,168)" stroke-width="2"/><text x="346.3" y="177.5" class="lbl">31<tspan class="dim"> 45 m</tspan></text>
+<circle cx="266.6" cy="131.4" r="4.2" fill="#0b1018" stroke="rgb(121,190,177)" stroke-width="2"/><text x="273.6" y="125.4" class="lbl">34<tspan class="dim"> 40 m</tspan></text>
+<circle cx="304.1" cy="78.9" r="4.2" fill="#0b1018" stroke="rgb(113,190,186)" stroke-width="2"/><text x="311.1" y="72.9" class="lbl">35<tspan class="dim"> 35 m</tspan></text>
+<circle cx="344.6" cy="107.8" r="4.2" fill="#0b1018" stroke="rgb(102,189,199)" stroke-width="2"/><text x="351.6" y="101.8" class="lbl">36<tspan class="dim"> 28 m</tspan></text>
+<circle cx="409.3" cy="154.0" r="4.2" fill="#0b1018" stroke="rgb(56,189,248)" stroke-width="2"/><text x="416.3" y="148.0" class="lbl">TD<tspan class="dim"> 0 m</tspan></text>
+<circle cx="150.4" cy="182.8" r="3.4" fill="#0b1018" stroke="rgb(218,191,71)" stroke-width="2"/>
+<circle cx="223.2" cy="234.9" r="3.4" fill="#0b1018" stroke="rgb(218,191,71)" stroke-width="2"/>
+<circle cx="296.0" cy="286.9" r="3.4" fill="#0b1018" stroke="rgb(218,191,71)" stroke-width="2"/>
+<text x="385.6" y="281.2" class="lbl" text-anchor="middle" style="fill:#a78bfa">22</text>
+<text x="328.9" y="240.8" class="lbl" text-anchor="middle" style="fill:#a78bfa">22↓</text>
+<text x="272.3" y="200.3" class="lbl" text-anchor="middle" style="fill:#a78bfa">24</text>
+<text x="215.7" y="159.9" class="lbl" text-anchor="middle" style="fill:#a78bfa">26</text>
+<text x="159.1" y="119.4" class="lbl" text-anchor="middle" style="fill:#a78bfa">27.5</text>
+<text x="189.7" y="285.8" class="lbl" text-anchor="middle">22–28 · slalom</text>
+<rect x="388.1" y="137.5" width="10" height="10" fill="#e5e7eb"/>
+<g transform="translate(526,34)"><path d="M0,-18 L7,8 L0,3 L-7,8 Z" fill="#e5e7eb"/><text x="0" y="22" text-anchor="middle" class="lbl">N</text></g>
+<g transform="translate(36,443)"><line x1="0" y1="0" x2="99.4" y2="0" stroke="#9aa7b8" stroke-width="2"/><line x1="0" y1="-4" x2="0" y2="4" stroke="#9aa7b8"/><line x1="99.4" y1="-4" x2="99.4" y2="4" stroke="#9aa7b8"/><text x="49.7" y="-6" text-anchor="middle" class="lbl dim">1 km</text></g>
+<defs><linearGradient id="ag"><stop offset="0" stop-color="rgb(56,189,248)"/><stop offset="1" stop-color="rgb(251,191,36)"/></linearGradient></defs>
+<g transform="translate(360,429)"><rect width="120" height="8" fill="url(#ag)" rx="2"/><text x="0" y="-5" class="lbl dim">0 m</text><text x="120" y="-5" text-anchor="end" class="lbl dim">120 m</text><text x="60" y="22" text-anchor="middle" class="lbl dim">dashed = pattern &amp; landing · violet = speed steps (m/s)</text></g>
+</svg></div></div>
+    <div class="card"><h3>Mission items</h3>
+      <table>
+        <tr><th>#</th><th>Item</th><th class="n">Alt m</th><th class="n">m/s</th><th class="n">Thr %</th><th>Turn</th></tr>
+        <tr class="grp"><td colspan="6">Departure</td></tr>
+        <tr><td>1</td><td>TAKEOFF, 10° pitch, roll on runway 13</td><td class="n">30</td><td class="n">—</td><td class="n">100</td><td></td></tr>
+        <tr><td>2–3</td><td>Cruise speed, fastest-rate climb</td><td class="n">90</td><td class="n">23</td><td class="n">83</td><td></td></tr>
+        <tr><td>4–5</td><td>Two climbing turns</td><td class="n">120</td><td class="n">23</td><td class="n">58–64</td><td><span class="R">RIGHT</span></td></tr>
+        <tr><td>6</td><td>Turn onto the test line</td><td class="n">120</td><td class="n">23</td><td class="n">54</td><td><span class="R">RIGHT</span></td></tr>
+        <tr class="grp"><td colspan="6">Speed staircase · 700 m a step</td></tr>
+        <tr><td>7–8</td><td>Step 1, level</td><td class="n">120</td><td class="n">22</td><td class="n">51</td><td></td></tr>
+        <tr><td>9</td><td>Step 1b, gentle descent</td><td class="n">95</td><td class="n">22</td><td class="n">39</td><td></td></tr>
+        <tr><td>10–11</td><td>Step 2, level</td><td class="n">95</td><td class="n">24</td><td class="n">58</td><td></td></tr>
+        <tr><td>12–13</td><td>Step 3, level</td><td class="n">95</td><td class="n">26</td><td class="n">69</td><td></td></tr>
+        <tr><td>14–15</td><td>Step 4, level</td><td class="n">95</td><td class="n">27.5</td><td class="n">82</td><td></td></tr>
+        <tr class="grp"><td colspan="6">Manoeuvres</td></tr>
+        <tr><td>16–17</td><td>Slow to 22 m/s, one circle, radius 100 m</td><td class="n">95</td><td class="n">22</td><td class="n">55</td><td><span class="L">LEFT</span></td></tr>
+        <tr><td>18</td><td>One circle, radius 100 m (figure-8)</td><td class="n">95</td><td class="n">22</td><td class="n">55</td><td><span class="R">RIGHT</span></td></tr>
+        <tr><td>19</td><td>LOITER_TO_ALT spiral down, radius 130 m</td><td class="n">55</td><td class="n">22</td><td class="n">32</td><td><span class="L">LEFT</span></td></tr>
+        <tr><td>20</td><td>LOITER_TO_ALT spiral up, radius 130 m</td><td class="n">100</td><td class="n">22</td><td class="n">70</td><td><span class="R">RIGHT</span></td></tr>
+        <tr><td>21–28</td><td>Cruise speed, slalom through 7 gates</td><td class="n">100</td><td class="n">23</td><td class="n">54</td><td><span class="L">L</span>/<span class="R">R</span></td></tr>
+        <tr><td>29–31</td><td>Upwind descent, two turns onto downwind</td><td class="n">45</td><td class="n">23</td><td class="n">28–53</td><td><span class="L">LEFT</span></td></tr>
+        <tr class="grp"><td colspan="6">Arrival (same as Session C)</td></tr>
+        <tr><td>32–34</td><td>DO_LAND_START, pattern speed, downwind</td><td class="n">40</td><td class="n">22</td><td class="n">49</td><td></td></tr>
+        <tr><td>35</td><td>Base</td><td class="n">35</td><td class="n">22</td><td class="n">49</td><td><span class="R">RIGHT</span></td></tr>
+        <tr><td>36</td><td>Final, 2° glide path</td><td class="n">28</td><td class="n">22</td><td class="n">47</td><td><span class="R">RIGHT</span></td></tr>
+        <tr><td>37</td><td>LAND, touchdown 200 m past the threshold, rollout</td><td class="n">0</td><td class="n">22</td><td class="n">39</td><td></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Throttle coverage against the MAD bench table</h3><svg viewBox="0 0 1000 200" class="chart" role="img" aria-label="Throttle coverage against the bench table">
+<rect x="116.2" y="70" width="787.5" height="26" rx="4" fill="#111a26" stroke="#1e2a3a"/>
+<line x1="116.2" y1="70" x2="116.2" y2="96" stroke="#334155"/><text x="116.2" y="112" text-anchor="middle" class="lbl dim">30</text>
+<text x="116.2" y="130" text-anchor="middle" class="lbl dim" style="font-size:9px">4 A</text>
+<line x1="172.5" y1="70" x2="172.5" y2="96" stroke="#334155"/><text x="172.5" y="112" text-anchor="middle" class="lbl dim">35</text>
+<line x1="228.8" y1="70" x2="228.8" y2="96" stroke="#334155"/><text x="228.8" y="112" text-anchor="middle" class="lbl dim">40</text>
+<text x="228.8" y="130" text-anchor="middle" class="lbl dim" style="font-size:9px">9 A</text>
+<line x1="285.0" y1="70" x2="285.0" y2="96" stroke="#334155"/><text x="285.0" y="112" text-anchor="middle" class="lbl dim">45</text>
+<line x1="341.2" y1="70" x2="341.2" y2="96" stroke="#334155"/><text x="341.2" y="112" text-anchor="middle" class="lbl dim">50</text>
+<text x="341.2" y="130" text-anchor="middle" class="lbl dim" style="font-size:9px">17 A</text>
+<line x1="397.5" y1="70" x2="397.5" y2="96" stroke="#334155"/><text x="397.5" y="112" text-anchor="middle" class="lbl dim">55</text>
+<line x1="453.8" y1="70" x2="453.8" y2="96" stroke="#334155"/><text x="453.8" y="112" text-anchor="middle" class="lbl dim">60</text>
+<text x="453.8" y="130" text-anchor="middle" class="lbl dim" style="font-size:9px">28 A</text>
+<line x1="510.0" y1="70" x2="510.0" y2="96" stroke="#334155"/><text x="510.0" y="112" text-anchor="middle" class="lbl dim">65</text>
+<line x1="566.2" y1="70" x2="566.2" y2="96" stroke="#334155"/><text x="566.2" y="112" text-anchor="middle" class="lbl dim">70</text>
+<text x="566.2" y="130" text-anchor="middle" class="lbl dim" style="font-size:9px">41 A</text>
+<line x1="622.5" y1="70" x2="622.5" y2="96" stroke="#334155"/><text x="622.5" y="112" text-anchor="middle" class="lbl dim">75</text>
+<line x1="678.8" y1="70" x2="678.8" y2="96" stroke="#334155"/><text x="678.8" y="112" text-anchor="middle" class="lbl dim">80</text>
+<text x="678.8" y="130" text-anchor="middle" class="lbl dim" style="font-size:9px">59 A</text>
+<line x1="735.0" y1="70" x2="735.0" y2="96" stroke="#334155"/><text x="735.0" y="112" text-anchor="middle" class="lbl dim">85</text>
+<line x1="791.2" y1="70" x2="791.2" y2="96" stroke="#334155"/><text x="791.2" y="112" text-anchor="middle" class="lbl dim">90</text>
+<text x="791.2" y="130" text-anchor="middle" class="lbl dim" style="font-size:9px">80 A</text>
+<line x1="847.5" y1="70" x2="847.5" y2="96" stroke="#334155"/><text x="847.5" y="112" text-anchor="middle" class="lbl dim">95</text>
+<line x1="903.8" y1="70" x2="903.8" y2="96" stroke="#334155"/><text x="903.8" y="112" text-anchor="middle" class="lbl dim">100</text>
+<text x="903.8" y="130" text-anchor="middle" class="lbl dim" style="font-size:9px">108 A</text>
+<text x="108.2" y="88" class="lbl dim" text-anchor="end">bench rows</text>
+<text x="108.2" y="112" class="lbl dim" text-anchor="end">throttle %</text>
+<line x1="903.8" y1="44" x2="903.8" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="903.8" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="899.8" y="54" text-anchor="end" class="lbl" style="fill:#c4b5fd">takeoff roll</text>
+<line x1="712.5" y1="24" x2="712.5" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="712.5" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="716.5" y="34" text-anchor="start" class="lbl" style="fill:#c4b5fd">max climb</text>
+<line x1="701.2" y1="44" x2="701.2" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="701.2" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="697.2" y="54" text-anchor="end" class="lbl" style="fill:#c4b5fd">27.5 m/s</text>
+<line x1="566.2" y1="24" x2="566.2" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="566.2" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="570.2" y="34" text-anchor="start" class="lbl" style="fill:#c4b5fd">climb spiral</text>
+<line x1="555.0" y1="44" x2="555.0" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="555.0" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="551.0" y="54" text-anchor="end" class="lbl" style="fill:#c4b5fd">26 m/s</text>
+<line x1="431.2" y1="44" x2="431.2" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="431.2" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="435.2" y="54" text-anchor="start" class="lbl" style="fill:#c4b5fd">24 m/s</text>
+<line x1="386.2" y1="24" x2="386.2" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="386.2" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="390.2" y="34" text-anchor="start" class="lbl" style="fill:#c4b5fd">cruise · slalom</text>
+<line x1="352.5" y1="44" x2="352.5" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="352.5" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="348.5" y="54" text-anchor="end" class="lbl" style="fill:#c4b5fd">22 m/s</text>
+<line x1="217.5" y1="24" x2="217.5" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="217.5" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="213.5" y="34" text-anchor="end" class="lbl" style="fill:#c4b5fd">descent · final</text>
+<line x1="138.8" y1="44" x2="138.8" y2="70" stroke="#a78bfa" stroke-width="1.4"/><circle cx="138.8" cy="83" r="5" fill="#a78bfa" stroke="#070b11" stroke-width="1.5"/><text x="134.8" y="54" text-anchor="end" class="lbl" style="fill:#c4b5fd">down spiral</text>
+<text x="500" y="160" text-anchor="middle" class="lbl dim">Estimated throttle on each leg (violet) against the 15 rows of the MAD X7215 / 21x10 bench table. Every 10 % band from 30 to 100 % gets at least one point.</text>
+<text x="500" y="178" text-anchor="middle" class="lbl dim">Current labels under the axis are the bench (static) values. In flight, the same throttle draws less, because the airstream unloads the propeller.</text>
+</svg></div>
+  <div class="card" style="margin-top:16px"><h3>Battery and throttle estimate by leg (printed by swift_sitl_cub_d)</h3><svg viewBox="0 0 1000 268" class="chart" role="img" aria-label="Estimated current, throttle and charge per leg">
+<line x1="50" y1="220.0" x2="940" y2="220.0" class="gl"/><text x="44" y="224.0" text-anchor="end" class="lbl dim">0</text>
+<line x1="50" y1="158.0" x2="940" y2="158.0" class="gl"/><text x="44" y="162.0" text-anchor="end" class="lbl dim">20</text>
+<line x1="50" y1="96.0" x2="940" y2="96.0" class="gl"/><text x="44" y="100.0" text-anchor="end" class="lbl dim">40</text>
+<line x1="50" y1="34.0" x2="940" y2="34.0" class="gl"/><text x="44" y="38.0" text-anchor="end" class="lbl dim">60</text>
+<text x="946" y="224.0" class="lbl" style="fill:#34d399">50%</text>
+<text x="946" y="131.0" class="lbl" style="fill:#34d399">75%</text>
+<text x="946" y="38.0" class="lbl" style="fill:#34d399">100%</text>
+<line x1="53.0" y1="252" x2="78.8" y2="252" stroke="#334155" stroke-width="2"/><text x="65.9" y="264" text-anchor="middle" class="lbl dim">TAKEOFF</text>
+<line x1="84.8" y1="252" x2="205.9" y2="252" stroke="#334155" stroke-width="2"/><text x="145.4" y="264" text-anchor="middle" class="lbl dim">CLIMB</text>
+<line x1="211.9" y1="252" x2="364.9" y2="252" stroke="#334155" stroke-width="2"/><text x="288.4" y="264" text-anchor="middle" class="lbl dim">STAIRCASE</text>
+<line x1="370.9" y1="252" x2="492.0" y2="252" stroke="#334155" stroke-width="2"/><text x="431.4" y="264" text-anchor="middle" class="lbl dim">FIG-8 / SPIRALS</text>
+<line x1="498.0" y1="252" x2="714.5" y2="252" stroke="#334155" stroke-width="2"/><text x="606.2" y="264" text-anchor="middle" class="lbl dim">SLALOM</text>
+<line x1="720.5" y1="252" x2="809.9" y2="252" stroke="#334155" stroke-width="2"/><text x="765.2" y="264" text-anchor="middle" class="lbl dim">RETURN</text>
+<line x1="815.9" y1="252" x2="937.0" y2="252" stroke="#334155" stroke-width="2"/><text x="876.4" y="264" text-anchor="middle" class="lbl dim">LAND</text>
+<rect x="54.4" y="34.0" width="22.9" height="186.0" rx="2" fill="#f59e0b" opacity="0.85"><title>Item TO: 60.5 A, 100% throttle, SOC 97.8%</title></rect>
+<text x="65.9" y="30.0" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">100</text>
+<text x="65.9" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">TO</text>
+<rect x="86.2" y="112.7" width="22.9" height="107.3" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 3: 34.6 A, 83% throttle, SOC 94.8%</title></rect>
+<text x="97.7" y="108.7" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">83</text>
+<text x="97.7" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">3</text>
+<rect x="118.0" y="163.6" width="22.9" height="56.4" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 4: 18.2 A, 58% throttle, SOC 92.5%</title></rect>
+<text x="129.5" y="159.6" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">58</text>
+<text x="129.5" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">4</text>
+<rect x="149.8" y="152.1" width="22.9" height="67.9" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 5: 21.9 A, 64% throttle, SOC 90.5%</title></rect>
+<text x="161.2" y="148.1" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">64</text>
+<text x="161.2" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">5</text>
+<rect x="181.6" y="169.5" width="22.9" height="50.5" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 6: 16.3 A, 54% throttle, SOC 89.7%</title></rect>
+<text x="193.0" y="165.5" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">54</text>
+<text x="193.0" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">6</text>
+<rect x="213.4" y="171.3" width="22.9" height="48.7" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 8: 15.7 A, 51% throttle, SOC 88.3%</title></rect>
+<text x="224.8" y="167.3" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">51</text>
+<text x="224.8" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">8</text>
+<rect x="245.2" y="193.3" width="22.9" height="26.7" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 9: 8.6 A, 39% throttle, SOC 87.5%</title></rect>
+<text x="256.6" y="189.3" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">39</text>
+<text x="256.6" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">9</text>
+<rect x="276.9" y="166.7" width="22.9" height="53.3" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 11: 17.2 A, 58% throttle, SOC 86.1%</title></rect>
+<text x="288.4" y="162.7" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">58</text>
+<text x="288.4" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">11</text>
+<rect x="308.7" y="160.2" width="22.9" height="59.8" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 13: 19.3 A, 69% throttle, SOC 84.7%</title></rect>
+<text x="320.2" y="156.2" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">69</text>
+<text x="320.2" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">13</text>
+<rect x="340.5" y="154.0" width="22.9" height="66.0" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 15: 21.3 A, 82% throttle, SOC 83.2%</title></rect>
+<text x="352.0" y="150.0" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">82</text>
+<text x="352.0" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">15</text>
+<rect x="372.3" y="164.2" width="22.9" height="55.8" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 17: 18.0 A, 55% throttle, SOC 81.1%</title></rect>
+<text x="383.8" y="160.2" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">55</text>
+<text x="383.8" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">17</text>
+<rect x="404.1" y="163.9" width="22.9" height="56.1" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 18: 18.1 A, 55% throttle, SOC 79.1%</title></rect>
+<text x="415.5" y="159.9" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">55</text>
+<text x="415.5" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">18</text>
+<rect x="435.9" y="200.8" width="22.9" height="19.2" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 19: 6.2 A, 32% throttle, SOC 78.5%</title></rect>
+<text x="447.3" y="196.8" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">32</text>
+<text x="447.3" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">19</text>
+<rect x="467.7" y="132.9" width="22.9" height="87.1" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 20: 28.1 A, 70% throttle, SOC 75.2%</title></rect>
+<text x="479.1" y="128.9" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">70</text>
+<text x="479.1" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">20</text>
+<rect x="499.4" y="167.6" width="22.9" height="52.4" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 22: 16.9 A, 54% throttle, SOC 73.8%</title></rect>
+<text x="510.9" y="163.6" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">54</text>
+<text x="510.9" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">22</text>
+<rect x="531.2" y="167.6" width="22.9" height="52.4" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 23: 16.9 A, 54% throttle, SOC 72.7%</title></rect>
+<text x="542.7" y="163.6" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">54</text>
+<text x="542.7" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">23</text>
+<rect x="563.0" y="167.6" width="22.9" height="52.4" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 24: 16.9 A, 54% throttle, SOC 71.6%</title></rect>
+<text x="574.5" y="163.6" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">54</text>
+<text x="574.5" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">24</text>
+<rect x="594.8" y="167.3" width="22.9" height="52.7" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 25: 17.0 A, 54% throttle, SOC 70.5%</title></rect>
+<text x="606.2" y="163.3" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">54</text>
+<text x="606.2" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">25</text>
+<rect x="626.6" y="167.3" width="22.9" height="52.7" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 26: 17.0 A, 54% throttle, SOC 69.4%</title></rect>
+<text x="638.0" y="163.3" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">54</text>
+<text x="638.0" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">26</text>
+<rect x="658.4" y="167.3" width="22.9" height="52.7" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 27: 17.0 A, 54% throttle, SOC 68.2%</title></rect>
+<text x="669.8" y="163.3" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">54</text>
+<text x="669.8" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">27</text>
+<rect x="690.2" y="167.0" width="22.9" height="53.0" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 28: 17.1 A, 54% throttle, SOC 67.1%</title></rect>
+<text x="701.6" y="163.0" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">54</text>
+<text x="701.6" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">28</text>
+<rect x="721.9" y="204.5" width="22.9" height="15.5" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 29: 5.0 A, 28% throttle, SOC 66.7%</title></rect>
+<text x="733.4" y="200.5" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">28</text>
+<text x="733.4" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">29</text>
+<rect x="753.7" y="173.2" width="22.9" height="46.8" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 30: 15.1 A, 51% throttle, SOC 64.8%</title></rect>
+<text x="765.2" y="169.2" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">51</text>
+<text x="765.2" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">30</text>
+<rect x="785.5" y="169.2" width="22.9" height="50.8" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 31: 16.4 A, 53% throttle, SOC 62.2%</title></rect>
+<text x="797.0" y="165.2" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">53</text>
+<text x="797.0" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">31</text>
+<rect x="817.3" y="172.3" width="22.9" height="47.7" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 34: 15.4 A, 49% throttle, SOC 60.5%</title></rect>
+<text x="828.8" y="168.3" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">49</text>
+<text x="828.8" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">34</text>
+<rect x="849.1" y="173.5" width="22.9" height="46.5" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 35: 15.0 A, 49% throttle, SOC 59.2%</title></rect>
+<text x="860.5" y="169.5" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">49</text>
+<text x="860.5" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">35</text>
+<rect x="880.9" y="177.5" width="22.9" height="42.5" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 36: 13.7 A, 47% throttle, SOC 58.4%</title></rect>
+<text x="892.3" y="173.5" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">47</text>
+<text x="892.3" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">36</text>
+<rect x="912.7" y="191.2" width="22.9" height="28.8" rx="2" fill="#f59e0b" opacity="0.85"><title>Item 37: 9.3 A, 39% throttle, SOC 57.4%</title></rect>
+<text x="924.1" y="187.2" text-anchor="middle" class="lbl" style="fill:#c4b5fd" style="font-size:9px">39</text>
+<text x="924.1" y="236" text-anchor="middle" class="lbl dim" style="font-size:9.5px">37</text>
+<polyline points="65.9,42.2 97.7,53.3 129.5,61.9 161.2,69.3 193.0,72.3 224.8,77.5 256.6,80.5 288.4,85.7 320.2,90.9 352.0,96.5 383.8,104.3 415.5,111.7 447.3,114.0 479.1,126.3 510.9,131.5 542.7,135.6 574.5,139.6 606.2,143.7 638.0,147.8 669.8,152.3 701.6,156.4 733.4,157.9 765.2,164.9 797.0,174.6 828.8,180.9 860.5,185.8 892.3,188.8 924.1,192.5" fill="none" stroke="#34d399" stroke-width="2.5"/>
+<circle cx="65.9" cy="42.2" r="2.6" fill="#34d399"/>
+<circle cx="97.7" cy="53.3" r="2.6" fill="#34d399"/>
+<circle cx="129.5" cy="61.9" r="2.6" fill="#34d399"/>
+<circle cx="161.2" cy="69.3" r="2.6" fill="#34d399"/>
+<circle cx="193.0" cy="72.3" r="2.6" fill="#34d399"/>
+<circle cx="224.8" cy="77.5" r="2.6" fill="#34d399"/>
+<circle cx="256.6" cy="80.5" r="2.6" fill="#34d399"/>
+<circle cx="288.4" cy="85.7" r="2.6" fill="#34d399"/>
+<circle cx="320.2" cy="90.9" r="2.6" fill="#34d399"/>
+<circle cx="352.0" cy="96.5" r="2.6" fill="#34d399"/>
+<circle cx="383.8" cy="104.3" r="2.6" fill="#34d399"/>
+<circle cx="415.5" cy="111.7" r="2.6" fill="#34d399"/>
+<circle cx="447.3" cy="114.0" r="2.6" fill="#34d399"/>
+<circle cx="479.1" cy="126.3" r="2.6" fill="#34d399"/>
+<circle cx="510.9" cy="131.5" r="2.6" fill="#34d399"/>
+<circle cx="542.7" cy="135.6" r="2.6" fill="#34d399"/>
+<circle cx="574.5" cy="139.6" r="2.6" fill="#34d399"/>
+<circle cx="606.2" cy="143.7" r="2.6" fill="#34d399"/>
+<circle cx="638.0" cy="147.8" r="2.6" fill="#34d399"/>
+<circle cx="669.8" cy="152.3" r="2.6" fill="#34d399"/>
+<circle cx="701.6" cy="156.4" r="2.6" fill="#34d399"/>
+<circle cx="733.4" cy="157.9" r="2.6" fill="#34d399"/>
+<circle cx="765.2" cy="164.9" r="2.6" fill="#34d399"/>
+<circle cx="797.0" cy="174.6" r="2.6" fill="#34d399"/>
+<circle cx="828.8" cy="180.9" r="2.6" fill="#34d399"/>
+<circle cx="860.5" cy="185.8" r="2.6" fill="#34d399"/>
+<circle cx="892.3" cy="188.8" r="2.6" fill="#34d399"/>
+<circle cx="924.1" cy="192.5" r="2.6" fill="#34d399"/>
+<text x="50" y="14" class="lbl" style="fill:#f59e0b">avg current, A (bars)</text><text x="230" y="14" class="lbl" style="fill:#c4b5fd">throttle % (numbers)</text><text x="940" y="14" text-anchor="end" class="lbl" style="fill:#34d399">state of charge at leg end</text>
+</svg>
+    <p class="sub" style="margin:8px 0 0">Planning estimate only: drag plus the climb or descent term, turned into throttle by inverting the thrust table, and run through the same <code>swift_battery_fcn</code> the Simulink Battery block uses. Expect the flown numbers to differ by several percent. The low-battery failsafe (return to launch (RTL) at 8000 mAh used) should not fire: there is about 3700 mAh of margin.</p>
+  </div>
+</section>
+
+<section id="p0">
+  <h2><span class="tag">P0</span>Before you start<span class="time">~2 min</span></h2>
+  <p class="sub">Run this once per session. The address can change after a reboot.</p>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Find your Windows address <span class="where w-u">Ubuntu</span></h4>
+    <ol class="click">
+      <li>Open the <b>Ubuntu</b> app from the Windows Start menu.</li>
+      <li>Paste the line below (right-click pastes in the Ubuntu window) and press <kbd>Enter</kbd>.</li>
+      <li>Type the address it prints into the <b>Windows address</b> box in the bar at the top of this page. Every command below fills it in.</li>
+    </ol>
+    <div class="code" data-lang="bash"><pre>ip route show | grep -i default | awk '{ print $3 }'</pre></div>
+    <p>This is the Windows IP address as seen from the Windows Subsystem for Linux (WSL). MATLAB listens on it.</p>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Check the files are in place <span class="where w-s">Folder</span></h4>
+    <p>In File Explorer, open <code>&lt;repo&gt;\simulation\ArduPilot_SITL</code> and check for:</p>
+    <table style="margin:6px 0 4px">
+      <tr><td style="width:120px"><code>models\</code></td><td><code>swift_6dof_sitl.slx</code></td></tr>
+      <tr><td><code>params\</code></td><td><code>swift_placeholder.m</code> (v0.6, with the MAD X7215 table), <code>swift_aero_matrix.m</code>, <code>swift_sitl_params.m</code></td></tr>
+      <tr><td><code>sitl\</code></td><td><b><code>swift_sitl_cub_d.m</code></b> (new), <b><code>swift_motor_check.m</code></b> (new, v0.2), <code>swift_plot_flight.m</code> (v0.5), <b><code>swift_flight_events.m</code></b>, <b><code>swift_mark_events.m</code></b>, <b><code>swift_events_figure.m</code></b> (new: numbered point markers), <code>ap_json_step.m</code>, <code>swift_sitl_preflight.m</code>, <code>swift_sitl.param</code>, <code>swift_sitl_batt.param</code></td></tr>
+      <tr><td><code>battery\</code></td><td><code>swift_battery_add.m</code>, <code>swift_battery_fcn.m</code>, <code>swift_battery_plot.m</code> (v0.3)</td></tr>
+      <tr><td><code>swift_setup.m</code></td><td>in the top of <code>ArduPilot_SITL</code></td></tr>
+    </table>
+    <p><code>swift_sitl_cub_d.param</code> and <code>swift_sitl_cub_d.waypoints</code> are already there, but <code>swift_sitl_cub_d</code> rewrites them in step P1-2 anyway. Session C's files are untouched.</p>
+    <div class="note">If <code>swift_sitl_batt.param</code> is missing, or step P1-2 prints a battery <b>[FAIL]</b>, run <code>swift_battery_add swift_6dof_sitl</code> once (with the ArduPilot_SITL setup active), then go on.</div>
+  </div></div>
+</section>
+
+<section id="p1">
+  <h2><span class="tag">P1</span>MATLAB: set up and start the model<span class="time">~3 min</span></h2>
+  <p class="sub">Order matters. <code>swift_sitl_preflight</code> rebuilds P and parks the aircraft facing north, so <code>swift_sitl_cub_d</code> must run after it to turn the aircraft onto runway 13.</p>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Set up the folder and run the preflight <span class="where w-m">MATLAB</span></h4>
+    <ol class="click">
+      <li>Open <b>MATLAB</b> and click in the <b>Command Window</b>.</li>
+      <li>Copy the block below, paste it with <kbd>Ctrl</kbd>+<kbd>V</kbd>, and press <kbd>Enter</kbd>.</li>
+    </ol>
+    <div class="code" data-lang="matlab"><pre>cd('&lt;repo&gt;\simulation\ArduPilot_SITL')
+swift_setup
+swift_sitl_preflight('ADDR')</pre></div>
+    <div class="note ok"><code>swift_setup</code> should print <code>ARDUPILOT_SITL is ACTIVE</code>. The preflight's propulsion line should read <b>MAD X7215 IPE 220KV, 145 N static, 32.9 m/s pitch speed</b>.</div>
+    <div class="note bad">If you see the red <i>SITL-TEST propulsion</i> line (90 N static) instead, this flight would test the old stand-in propeller, not your motor. Stop here and see <a href="#fix" style="color:inherit">Fixes</a>.</div>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Park on runway 13, check the battery, write the files <span class="where w-m">MATLAB</span></h4>
+    <p>Sets <code>P.sitl.hdg0 = 125.55</code>, rewrites the mission and parameter files, and prints the battery check, the leg-by-leg plan with estimated current, throttle and charge, and the Ubuntu commands with your address filled in.</p>
+    <div class="code" data-lang="matlab"><pre>S = swift_sitl_cub_d('addr', 'ADDR');</pre></div>
+    <div class="note ok">Look for <b>[ OK ]</b> lines under BATTERY CHECK, a <b>thr %</b> column running from 100 down to about 30, <code>Battery [EST] 100% -&gt; 57%</code>, about 17.6 km and 15.4 min, and <code>P.sitl.hdg0 = 125.55 deg</code>.</div>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Open the model and press Run <span class="where w-p">Simulink</span></h4>
+    <ol class="click">
+      <li>Paste the line below into the Command Window and press <kbd>Enter</kbd>. The <code>swift_6dof_sitl</code> window opens.</li>
+      <li>In that window, on the <b>Simulation</b> tab of the toolstrip, check <b>Stop Time</b> reads <code>inf</code>.</li>
+      <li>Click the green <b>Run</b> button.</li>
+    </ol>
+    <div class="code" data-lang="matlab"><pre>open_system('swift_6dof_sitl')</pre></div>
+    <p>The clock in the bottom bar stays at 0 until ArduPlane connects. You have about 120 s to start P3.</p>
+    <div class="note bad">After this step, don't run <code>swift_placeholder</code>, <code>clear</code> or <code>swift_sitl_preflight</code>. Each one resets the heading to north (the takeoff roll goes off the side of the runway) and puts the battery back to its defaults.</div>
+  </div></div>
+</section>
+
+<section id="p2">
+  <h2><span class="tag">P2</span>Ubuntu: copy the four files<span class="time">~1 min</span></h2>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Copy the parameters and the mission to your Linux home folder <span class="where w-u">Ubuntu</span></h4>
+    <ol class="click">
+      <li>Click into the <b>Ubuntu</b> window.</li>
+      <li>Paste the block below and press <kbd>Enter</kbd>.</li>
+      <li>Check that <code>ls</code> lists four files with today's time, including <code>swift_sitl_cub_d.param</code> and <code>swift_sitl_cub_d.waypoints</code>.</li>
+    </ol>
+    <div class="code" data-lang="bash"><pre>D="/mnt/c/&lt;repo&gt;/simulation/ArduPilot_SITL/sitl"
+cp "$D"/swift_sitl.param "$D"/swift_sitl_cub_d.param \
+   "$D"/swift_sitl_batt.param "$D"/swift_sitl_vtail.param "$D"/swift_sitl_cub_d.waypoints ~/
+ls -l ~/swift_sitl*</pre></div>
+    <p>Copy them again every time you re-run <code>swift_sitl_cub_d</code>.</p>
+  </div></div>
+</section>
+
+<section id="p3">
+  <h2><span class="tag">P3</span>Launch ArduPlane and start the mission<span class="time">~2 min to takeoff</span></h2>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Start SITL with KCUB as home <span class="where w-u">Ubuntu</span></h4>
+    <p><code>-w</code> wipes old parameters. The four files load in order, and later files win: <code>swift_sitl_cub_d.param</code> replaces the trim throttle (56 → 54%) and the maximum climb rate (1.1 → 2.0 m/s) from <code>swift_sitl.param</code>. The battery file goes last because <code>BATT_MONITOR</code> only takes effect at boot.</p>
+    <ol class="click">
+      <li>In the same Ubuntu window, paste the block below and press <kbd>Enter</kbd>.</li>
+      <li>Two new windows open: the MAVProxy <b>Console</b> and the <b>Map</b>. Type MAVProxy commands in the original Ubuntu window (the one showing <code>STABILIZE&gt;</code> or <code>MANUAL&gt;</code>).</li>
+    </ol>
+    <div class="code" data-lang="bash"><pre>cd ~/ardupilot/ArduPlane
+../Tools/autotest/sim_vehicle.py -v ArduPlane -f JSON:ADDR -N -w \
+  --custom-location=33.9744563,-81.0019926,58.9,125.5 \
+  --add-param-file=../Tools/autotest/models/plane.parm \
+  --add-param-file=$HOME/swift_sitl.param \
+  --add-param-file=$HOME/swift_sitl_cub_d.param \
+  --add-param-file=$HOME/swift_sitl_batt.param \
+  --add-param-file=$HOME/swift_sitl_vtail.param \
+  --out=udp:ADDR:14550 --console --map</pre></div>
+    <p>The Simulink clock starts moving and MATLAB prints <i>Connected to ArduPlane</i>. The map opens on Owens Downtown with the aircraft on the runway 13 threshold, nose to the southeast.</p>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Connect Mission Planner and set up the motor readouts (optional) <span class="where w-mp">Mission Planner</span></h4>
+    <ol class="click">
+      <li>Open <b>Mission Planner</b>. In the top right, set the connection drop-down to <b>UDP</b>, then click <b>Connect</b>.</li>
+      <li>Type <b>14550</b> in the port box and click <b>OK</b>.</li>
+      <li>On the <b>Flight Data</b> screen, click the <b>Quick</b> tab under the heads-up display (HUD).</li>
+      <li>Double-click a value tile, tick <b>current</b>, and click away. Repeat for two more tiles with <b>battery_voltage</b> and <b>ch3percent</b> (throttle).</li>
+    </ol>
+    <p>Now you can watch throttle, pack current and voltage step together through the staircase. If UDP won't connect, use TCP to host <code>127.0.0.1</code>, port <code>5762</code>.</p>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Wait for GPS, load the mission, check the settings <span class="where w-u">MAVProxy</span></h4>
+    <ol class="click">
+      <li>Watch the Console for <code>EKF3 IMU0 is using GPS</code> (30–60 s). The extended Kalman filter (EKF) has to be using GPS before the aircraft will arm.</li>
+      <li>Paste the block below into the MAVProxy window and press <kbd>Enter</kbd>.</li>
+    </ol>
+    <div class="code" data-lang="mavproxy"><pre>wp load ../../swift_sitl_cub_d.waypoints
+wp list
+param show TRIM_THROTTLE
+param show TECS_CLMB_MAX
+param show RTL_AUTOLAND
+param show BATT_MONITOR
+param show BATT_CAPACITY</pre></div>
+    <div class="note ok">Expect <b>38 items</b> (home plus 37), <code>TRIM_THROTTLE 54</code>, <code>TECS_CLMB_MAX 2</code>, <code>RTL_AUTOLAND 2</code>, <code>BATT_MONITOR 4</code> and <code>BATT_CAPACITY 10000</code>. The Console's <b>Batt</b> field should read about 50 V. The map should show the long test line and the slalom zig-zag southwest of the field.</div>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Arm and go <span class="where w-u">MAVProxy</span></h4>
+    <div class="code" data-lang="mavproxy"><pre>mode FBWA
+arm throttle
+mode AUTO</pre></div>
+    <p>The takeoff starts as soon as AUTO is set: full throttle, nose-wheel steering on the centreline, rotation at 19 m/s. With 145 N of static thrust it lifts off sooner than in Session C.</p>
+    <div class="note">Battery check in the first 5 s: at full throttle the current should climb toward <b>~95 A</b> and the pack should sag about 4–5 V. If the HUD sits at exactly <b>50.4 V and 0 A</b>, this ArduPlane build is ignoring the battery data and using its own simulated battery (see Fixes). The Simulink battery, which <code>swift_motor_check</code> uses, still logs normally.</div>
+  </div></div>
+</section>
+
+<section id="p4">
+  <h2><span class="tag">P4</span>Watch the flight<span class="time">~15 min · hands off</span></h2>
+  <p class="sub">Times are approximate from AUTO. MAVProxy prints <code>Mission: n</code> as each item starts. The amber lines are the estimate for current and charge; the violet ones are the throttle to expect.</p>
+  <div class="timeline">
+    <div class="tl"><b>Takeoff roll and climb to 30 m</b><span class="meta">item 1 · 0:00–0:15</span><p>100% throttle, rotation at 19 m/s, then a climb at about 10° pitch.</p><p class="batt">Peak ~97 A · pack sags to ~45–46 V · ~2% SOC</p></div>
+    <div class="tl"><b>Fastest-rate climb, climbing right turns to 120 m</b><span class="meta">items 2–6 · 0:15–2:20</span><p>Straight climb to 90 m at about 2 m/s, then two right turns up to 120 m and a third onto the test line.</p><p class="batt">~35 A in the climb, 16–22 A in the turns · ~90%</p><p class="batt" style="color:#c4b5fd">Throttle ~83% in the climb</p></div>
+    <div class="tl"><b>Speed staircase</b><span class="meta">items 7–15 · 2:20–4:45</span><p>Five 700 m straight legs: 22 m/s level, 22 m/s descending 120 → 95 m, then 24, 26 and 27.5 m/s level. Each step should settle into a flat stretch of throttle and current. These are the main points for the motor comparison.</p><p class="batt">16 → 9 → 17 → 19 → 21 A · ~83%</p><p class="batt" style="color:#c4b5fd">Throttle ~51 → 39 → 58 → 69 → 82%</p></div>
+    <div class="tl"><b>Figure-8, spiral down, spiral up</b><span class="meta">items 16–20 · 4:45–7:25</span><p>Slow to 22 m/s. One left circle and one right circle at 95 m (about 25° bank each way), then a left spiral down to 55 m and a right spiral back up to 100 m.</p><p class="batt">~18 A in the circles, ~6 A down, ~28 A up · ~75%</p><p class="batt" style="color:#c4b5fd">Throttle ~55%, then ~32%, then ~70%</p></div>
+    <div class="tl"><b>Slalom</b><span class="meta">items 21–28 · 7:25–10:15</span><p>Back to 23 m/s at 100 m, through seven gates alternating left and right. Roll swings between about ±35°, with matching aileron, rudder and sideslip activity.</p><p class="batt">~17 A · ~67%</p><p class="batt" style="color:#c4b5fd">Throttle ~54%</p></div>
+    <div class="tl"><b>Return and left turns onto downwind</b><span class="meta">items 29–31 · 10:15–12:25</span><p>Descent to 60 m on the upwind leg (lowest throttle of the flight), then two left turns stepping down to 50 m and 45 m.</p><p class="batt">5 A, then ~16 A · ~62%</p></div>
+    <div class="tl"><b>Pattern, approach and autoland</b><span class="meta">items 32–37 · 12:25–15:05</span><p>Same as Session C: 22 m/s on the downwind leg at 40 m, right turn to base at 35 m, right turn to final at 28 m, 2° glide path, flare at 3 m or 2 s before touchdown, touchdown about 200 m past the threshold, rollout. <code>Disarming</code> comes 20 s after touchdown.</p><p class="batt">~14 A on final, hotel load only on the rollout · ends near 57%</p></div>
+  </div>
+  <div class="note"><b>If something goes wrong in the air:</b> type <code>mode RTL</code>. Because <code>RTL_AUTOLAND = 2</code>, it jumps straight to the landing sequence (item 32) and lands on runway 13. The battery failsafes trigger the same RTL. <code>mode LOITER</code> circles in place while you work out what to do. The plots still work on a partial flight.</div>
+</section>
+
+<section id="p5">
+  <h2><span class="tag">P5</span>End the session<span class="time">~1 min</span></h2>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Wait for the disarm <span class="where w-u">MAVProxy</span></h4>
+    <p>Let the aircraft roll to a stop and wait for <code>Disarming motors</code> in the Console. That gives the landing and battery plots a clean end.</p>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Stop Simulink first <span class="where w-p">Simulink</span></h4>
+    <p>In the <code>swift_6dof_sitl</code> window, click the red <b>Stop</b> button on the Simulation tab. The logged signals, including <code>out_batt</code>, arrive in <code>out</code>. If you stop Ubuntu first, the model sits waiting for packets.</p>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Then stop SITL <span class="where w-u">Ubuntu</span></h4>
+    <p>Click into the <code>sim_vehicle.py</code> window and press <kbd>Ctrl</kbd>+<kbd>C</kbd>. The Console and Map windows close. In Mission Planner, click <b>Disconnect</b>.</p>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Keep the run <span class="where w-m">MATLAB</span></h4>
+    <div class="code" data-lang="matlab"><pre>outD = out;   % keep a copy before the next Run overwrites it</pre></div>
+  </div></div>
+</section>
+
+<section id="p6">
+  <h2><span class="tag">P6</span>Plot and check the data<span class="time">~3 min</span></h2>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Make the flight and battery figures <span class="where w-m">MATLAB</span></h4>
+    <p>Draws the flight, takeoff, landing and battery figures plus the new <b>flight events</b> list, prints both summaries, and saves the PNGs, <code>signals.mat</code>, <code>summary.txt</code>, <code>battery_summary.txt</code> and <code>events.csv</code> to <code>data\runs\sessionD_cub\</code>.</p>
+    <div class="note ok"><b>Numbered points on every graph.</b> Each mission item (timed from when the aircraft reached it) and each flight event (throttle up, liftoff, highest point, peak current, battery warnings, touchdown, stop) gets a number. The same numbers appear as dotted lines on the time plots, as circles on the ground tracks, and in <code>swift_sitl_flight_events.png</code>, which says what is happening at each one. Blue-grey = mission item, orange = flight event, red = battery. The summary printout ends with an <i>Events</i> line giving the count; expect about 34 for this flight.</div>
+    <p>Because <code>S</code> from P1-2 is still in the workspace, the plot scripts pick up the mission file and the leg names automatically. Add <code>'events', false</code> to turn the markers off.</p>
+    <div class="code" data-lang="matlab"><pre>R = swift_plot_flight(outD, 'tag', 'sessionD_cub', 'wp', S.wp_file);</pre></div>
+    <p>If <code>S</code> is gone, use <code>fullfile(fileparts(which('swift_sitl_cub_d')), 'swift_sitl_cub_d.waypoints')</code> for <code>'wp'</code>.</p>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Compare the motor with the bench table <span class="where w-m">MATLAB</span></h4>
+    <p>Finds every steady stretch of the flight (throttle, airspeed and climb rate flat, wings within 12° of level, at least 10 s long), prints them in a table, draws three figures, and saves <code>motor_steady_points.csv</code> and <code>motor_summary.txt</code> in the same run folder.</p>
+    <div class="code" data-lang="matlab"><pre>M = swift_motor_check(outD, 'tag', 'sessionD_cub');</pre></div>
+    <div class="note ok">Expect roughly 8–20 steady stretches, labelled <b>S1, S2, …</b> so they don't clash with the numbered points. They include the five staircase steps, the slalom legs and the pattern legs. The <b>fl/mod</b> column should be close to 100%: that confirms the Simulink build matches its own equations. The time-history figure carries the same numbered points as the flight figures.</div>
+  </div></div>
+  <div class="step"><input type="checkbox"><div>
+    <h4>Optional: overlay what ArduPilot wanted <span class="where w-u">Ubuntu</span> <span class="where w-mp">Mission Planner</span></h4>
+    <p>The simulator writes its .BIN log inside Ubuntu (<code>~/ardupilot/ArduPlane/logs/</code>), not in Mission Planner's own <code>Documents\Mission Planner\logs</code> folder, so copy it out first.</p>
+    <ol class="click">
+      <li>In <b>Ubuntu</b> (after Ctrl+C), paste the block below. The <code>ls</code> line shows the newest logs: the top one should have tonight's time and be tens of MB.</li>
+    </ol>
+    <div class="code" data-lang="bash"><pre>R="/mnt/c/&lt;repo&gt;/simulation/ArduPilot_SITL/data/runs/sessionD_cub"
+mkdir -p "$R"
+ls -lt ~/ardupilot/ArduPlane/logs/*.BIN | head -3
+cp "$(ls -t ~/ardupilot/ArduPlane/logs/*.BIN | head -1)" "$R/sessionD_cub.BIN"</pre></div>
+    <ol class="click" start="2">
+      <li>In <b>Mission Planner</b>, click <b>Flight Data</b>, then the <b>DataFlash Logs</b> tab, then <b>Create Matlab File</b>.</li>
+      <li>In the Open window, paste <code>&lt;repo&gt;\simulation\ArduPilot_SITL\data\runs\sessionD_cub</code> into the address bar, press <kbd>Enter</kbd>, pick <code>sessionD_cub.BIN</code> and click <b>Open</b>. The .mat file appears next to it, with a number added (e.g. <code>sessionD_cub.BIN-1040581.mat</code>).</li>
+      <li>In MATLAB, put that file name in place of <code>&lt;name&gt;</code>:</li>
+    </ol>
+    <div class="code" data-lang="matlab"><pre>d = fullfile(fileparts(fileparts(which('swift_plot_flight'))), 'data', 'runs', 'sessionD_cub');
+R = swift_plot_flight(outD, 'tag', 'sessionD_cub', 'wp', S.wp_file, ...
+                      'aplog', fullfile(d, '&lt;name&gt;.mat'));</pre></div>
+    <div class="note">No .BIN in that folder? <code>sim_vehicle.py</code> was started from a different folder. Find it with <code>find ~ -name "*.BIN" -mmin -180 2&gt;/dev/null</code>, or open the folder in File Explorer with <code>explorer.exe ~/ardupilot/ArduPlane/logs</code>.</div>
+  </div></div>
+
+  <h3 class="sub2">What each figure should show</h3>
+  <div class="figs">
+    <div class="fig"><div class="id">FIG 1</div><h5>Flight overview <span class="badge">+ battery</span></h5><ul><li>Altitude 30 → 90 → 120 → 95 → 55 → 100 → 60 → 45 → 0 m</li><li>Airspeed staircase 22 · 24 · 26 · 27.5 m/s clearly visible</li><li>Throttle at 100% on takeoff, steps up through the staircase, lowest in the down spiral and on the upwind leg</li><li>Bottom panel: SOC falls steadily, current steps with throttle</li></ul></div>
+    <div class="fig"><div class="id">FIG 2</div><h5>Ground track</h5><ul><li>Long straight test line, two side-by-side circles and the slalom zig-zag</li><li>Approach lines up on the runway 13 centreline</li></ul></div>
+    <div class="fig"><div class="id">FIG 3</div><h5>Attitude and rates</h5><ul><li>Roll alternates sign through the figure-8 and every slalom gate</li><li>Pitch highest in the max climb and up spiral, lowest at 27.5 m/s</li><li>Heading starts at 125.6°</li></ul></div>
+    <div class="fig"><div class="id">FIG 4</div><h5>Aerodynamics and controls</h5><ul><li>Angle of attack falls as each speed step rises</li><li>Aileron and rudder busiest in the slalom</li><li>All surfaces inside their travel limits</li></ul></div>
+    <div class="fig"><div class="id">FIG 5</div><h5>Takeoff roll</h5><ul><li>Shorter roll than Session C's 150 m (more static thrust)</li><li>Liftoff well before the 1528 m runway end</li></ul></div>
+    <div class="fig"><div class="id">FIG 6</div><h5>Landing</h5><ul><li>Should match Session C (21.1 m/s, 0.83 m/s sink, ~410 m rollout)</li><li>Sink eases off below the 3 m flare line</li></ul></div>
+    <div class="fig"><div class="id">FIG 7</div><h5>Battery on the track</h5><ul><li>Hottest colour on the roll and the climb, then a visible step-up along the test line</li><li>Altitude against pack power: power spikes in the up spiral, dips in the down spiral</li></ul></div>
+    <div class="fig"><div class="id">BATTERY</div><h5>swift_battery_plot (4 panels)</h5><ul><li>SOC about 100 → 55–60%, well above the 20% reserve</li><li>Pack voltage above the 42.0 V low line</li><li>Peak current near 95 A, under the 120 A ESC rating</li></ul></div>
+    <div class="fig new"><div class="id">EVENTS · NEW</div><h5>Flight events list</h5><ul><li>One row per numbered point: time, mission item, what is happening, altitude, airspeed, throttle, current, SOC</li><li>Leg names come from the mission (e.g. "Slalom gate 3 - turns left 67 deg")</li><li>Same table in <code>events.csv</code></li></ul></div>
+    <div class="fig new"><div class="id">MOTOR 1 · NEW</div><h5>Power vs throttle</h5><ul><li>Black squares: MAD bench (static)</li><li>Coloured dots S1, S2, …: steady flight points, coloured by airspeed, below the bench curve (the airstream unloads the propeller)</li><li>Orange star: full-throttle static point, about 13–16% under the bench row (model ~94 A vs bench 108 A)</li></ul></div>
+    <div class="fig new"><div class="id">MOTOR 2 · NEW</div><h5>Efficiency and model error</h5><ul><li>Bench efficiency 71–82% against the model's single 82%</li><li>Bars: model about −4% at 30%, +8% at 50%, −13% at 100% throttle</li></ul></div>
+    <div class="fig new"><div class="id">MOTOR 3 · NEW</div><h5>Time history</h5><ul><li>Throttle, current and airspeed against time</li><li>Green bands mark the steady stretches S1, S2, …; dotted lines are the numbered flight points</li></ul></div>
+  </div>
+  <div class="note ok" style="margin-top:14px"><b>How to read the motor check:</b> the MAD table was measured on a static test stand, so in flight every point should sit below it at the same throttle. That is expected, not an error. What matters is that the flight points sit on the model curve (fl/mod near 100%). The static gap to the bench, worst at full throttle, comes from the battery model's single efficiency value. True in-flight accuracy needs a logged flight of the real aircraft.</div>
+</section>
+
+<section id="fix">
+  <h2><span class="tag" style="background:var(--red)">FIX</span>Common problems</h2>
+  <div class="card"><table>
+    <tr><th style="width:36%">Symptom</th><th>Fix</th></tr>
+    <tr><td>Preflight shows the red <i>SITL-TEST propulsion</i> line</td><td><code>P.sitl.prop</code> is set to <code>'test'</code>. Open <code>params\swift_sitl_params.m</code>, set the default <code>prop</code> to <code>'auto'</code>, save, and redo P1.</td></tr>
+    <tr><td>Wrong files run, or <i>Undefined function</i> errors</td><td><code>swift_setup</code> hasn't been run in this MATLAB session, or the Standalone setup is active. <code>cd</code> into ArduPilot_SITL and run <code>swift_setup</code>, then look for <i>ARDUPILOT_SITL is ACTIVE</i>.</td></tr>
+    <tr><td>Simulink clock never moves</td><td>The address is wrong or out of date, or port 9002 is in use. Check the address with <code>ip route</code>, press Stop, and redo P1-1 to P1-3.</td></tr>
+    <tr><td>Aircraft rolls off the side of the runway</td><td>The heading was reset to north. Stop both sides and run <code>swift_sitl_cub_d('addr', …)</code> again after the preflight. Check that <code>--custom-location</code> ends in <code>125.5</code>.</td></tr>
+    <tr><td><code>wp list</code> shows 21 items, not 38</td><td>Session C's mission is loaded. Run <code>wp load ../../swift_sitl_cub_d.waypoints</code> (note the <code>_d</code>).</td></tr>
+    <tr><td><code>arm throttle</code> refused</td><td>Wait for <code>EKF3 IMU0 is using GPS</code> and read the pre-arm message in the Console. <code>arm throttle force</code> is fine in SITL.</td></tr>
+    <tr><td>Climb to 90 m is slow (about 1 m/s)</td><td><code>swift_sitl_cub_d.param</code> wasn't loaded. <code>param show TECS_CLMB_MAX</code> should read 2. Recopy the files (P2) and relaunch.</td></tr>
+    <tr><td>Throttle hunts up and down on the staircase legs</td><td>The total energy control system (TECS) is still settling after the speed change. <code>swift_motor_check</code> only takes the flat part. If a step never settles, lower <code>'win'</code> or <code>'min_s'</code>: <code>swift_motor_check(outD, 'tag', 'sessionD_cub', 'min_s', 6)</code>.</td></tr>
+    <tr><td><i>No steady stretch found</i></td><td>Same as above, or the run stopped early. Try <code>'win', 5, 'min_s', 6</code>.</td></tr>
+    <tr><td>Graphs have flight-event numbers but no mission items, or the events list has a <i>Note</i> saying the file doesn't match</td><td><code>S</code> is missing or from another session. Pass the mission yourself: <code>swift_plot_flight(outD, 'tag', 'sessionD_cub', 'wp', fullfile(fileparts(which('swift_sitl_cub_d')), 'swift_sitl_cub_d.waypoints'))</code>.</td></tr>
+    <tr><td>Too many markers to read on a busy plot</td><td>Use the events list image to look up each number, or re-plot with <code>'events', false</code>.</td></tr>
+    <tr><td>HUD battery stuck at 50.4 V / 0 A</td><td>This Plane-4.6.2 build ignores the battery data in the JSON link and uses <code>SIM_BATT_VOLTAGE</code> instead. The Simulink battery plots and the motor check are unaffected, but ArduPlane's battery failsafe won't follow the model. Building ArduPilot master fixes this.</td></tr>
+    <tr><td>RTL partway through the flight</td><td>A battery failsafe triggered. Check <code>P.batt.SOC0</code> is 1 and that <code>BATT_CAPACITY</code> showed 10000. Wrong values usually mean <code>swift_sitl_batt.param</code> wasn't copied or loaded.</td></tr>
+    <tr><td>Battery or motor figures missing, or <i>no out_batt in this run</i></td><td>Run <code>swift_battery_add swift_6dof_sitl</code>, then fly again. Also check Model Settings → Data Import/Export → "Single simulation output" is ticked.</td></tr>
+    <tr><td>Want to fly it again</td><td>After the disarm: <code>wp set 1</code>, <code>mode FBWA</code>, <code>arm throttle</code>, <code>mode AUTO</code>. The battery carries on from where it ended, so for a clean log and a full pack, restart from P1.</td></tr>
+  </table></div>
+  <div class="note" style="margin-top:14px"><b>Simulation only.</b> KCUB sits under the Columbia (CAE) Class C airspace shelf, and the far legs are about 2.7 km from the field, beyond visual line of sight. A real flight would need airspace authorization and a different plan.</div>
+</section>
+
+<footer>SWIFT UAV · ARTS Lab · Session D v0.2 · numbered event markers · KCUB RWY 13 · MAD X7215 motor validation · folder Simulink\ArduPilot_SITL · Ryan Bilock · 2026-11-12 03:30Z</footer>
+</div>
+<script>
+(function(){
+  var KEY='swift-sessD-v01';
+  var st={};try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+  var addr=document.getElementById('addr');
+  addr.value=st.addr||'';
+  var blocks=[].slice.call(document.querySelectorAll('.code'));
+  blocks.forEach(function(b){
+    var pre=b.querySelector('pre');b._tpl=pre.textContent;
+    var hd=document.createElement('div');hd.className='hd';
+    var lang=document.createElement('span');lang.textContent=b.getAttribute('data-lang')||'';
+    var btn=document.createElement('button');btn.type='button';btn.textContent='Copy';
+    btn.addEventListener('click',function(){
+      var txt=pre.textContent;
+      function ok(){btn.textContent='Copied';btn.classList.add('ok');setTimeout(function(){btn.textContent='Copy';btn.classList.remove('ok')},1400)}
+      try{navigator.clipboard.writeText(txt).then(ok,function(){sel(pre);btn.textContent='Select + Ctrl+C'})}catch(e){sel(pre);btn.textContent='Select + Ctrl+C'}
+    });
+    hd.appendChild(lang);hd.appendChild(btn);b.insertBefore(hd,pre);
+  });
+  function sel(el){var r=document.createRange();r.selectNodeContents(el);var s=window.getSelection();s.removeAllRanges();s.addRange(r)}
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+  function render(){
+    var a=addr.value.trim();var shown=a?esc(a):'&lt;addr&gt;';
+    blocks.forEach(function(b){b.querySelector('pre').innerHTML=esc(b._tpl).split('ADDR').join('<span class="ad">'+shown+'</span>')});
+  }
+  addr.addEventListener('input',function(){st.addr=addr.value.trim();save();render()});
+  render();
+  var boxes=[].slice.call(document.querySelectorAll('.step input[type=checkbox]'));
+  st.done=st.done||{};
+  function prog(){var n=0;boxes.forEach(function(c,i){c.closest('.step').classList.toggle('done',c.checked);if(c.checked)n++});
+    document.getElementById('fill').style.width=(100*n/boxes.length)+'%';document.getElementById('pct').textContent=n+' / '+boxes.length}
+  boxes.forEach(function(c,i){c.checked=!!st.done[i];c.addEventListener('change',function(){st.done[i]=c.checked;save();prog()})});
+  document.getElementById('reset').addEventListener('click',function(){boxes.forEach(function(c){c.checked=false});st.done={};save();prog()});
+  prog();
+})();
+</script>
+
+</body>
+</html>

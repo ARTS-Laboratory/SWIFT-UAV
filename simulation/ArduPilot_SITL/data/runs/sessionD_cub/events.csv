@@ -1,0 +1,35 @@
+num,time_s,kind,item,what,alt_m,airspeed_ms,throttle_pct,current_A,SOC_pct
+1,71.97,flight,,"Throttle up: takeoff roll begins",-0.0,0.61,32.0,5.01,99.96
+2,72.65,battery,,"Peak pack current, 93 A",-0.0,2.75,100.0,93.05,99.89
+3,79.78,flight,,"Liftoff at 23.3 m/s, 110 m from brake release",0.5,23.31,100.0,43.69,98.61
+4,88.93,mission,#1,"Takeoff, climb to 30 m - Takeoff complete at 30 m; speed 23 m/s",28.5,23.11,100.0,44.56,97.45
+5,113.21,mission,#3,"Max-rate climb to 90 m - Waypoint at 90 m, turns right 35 deg, then climbs to 100 m (#4)",66.8,23.10,82.3,34.18,95.35
+6,158.96,mission,#4,"Climbing right turn, 100 m - Waypoint at 100 m, turns right 78 deg, then climbs to 120 m (#5)",100.2,23.18,54.5,16.08,92.37
+7,191.17,mission,#5,"Right turn, climb to 120 m - Waypoint at 120 m, turns right 67 deg, then level (#6)",115.8,23.17,65.6,22.49,90.44
+8,202.93,flight,,"Highest point, 121 m",121.1,23.37,49.8,13.52,89.68
+9,207.71,mission,#6,"Right turn onto test line - Waypoint at 120 m, then level (#8); speed 22 m/s",120.4,23.11,52.0,14.93,89.50
+10,238.38,mission,#8,"Step 1 leg, level 120 m - Waypoint at 120 m, then descends to 95 m (#9)",120.0,22.17,51.7,15.69,88.21
+11,269.21,mission,#9,"Step 1b: 22 m/s descent - Waypoint at 95 m, then level (#11); speed 24 m/s",100.9,22.17,38.4,8.37,87.34
+12,298.17,mission,#11,"Step 2 leg - Waypoint at 95 m, then level (#13); speed 26 m/s",95.1,24.18,58.2,17.15,85.99
+13,324.91,mission,#13,"Step 3 leg - Waypoint at 95 m, then level (#15); speed 27.5 m/s",95.2,26.19,69.8,19.13,84.45
+14,350.06,mission,#15,"Step 4 leg - Waypoint at 95 m, then level (#17); speed 22 m/s",95.2,27.70,83.4,21.33,82.88
+15,359.66,mission,#17,"Figure-8 left circle - Joins 1 LEFT circle, radius 100 m, at 95 m, then level (#18)",97.2,23.96,73.7,26.64,82.52
+16,407.63,mission,#18,"Figure-8 right circle - Joins 1 RIGHT circle, radius 100 m, at 95 m, then descends to 55 m (#19)",95.5,23.70,84.8,35.65,79.98
+17,435.32,mission,#19,"Left spiral down to 55 m - Joins LEFT spiral to 55 m, radius 130 m, then climbs to 100 m (#20)",88.6,24.68,36.1,6.49,78.55
+18,468.70,mission,#20,"Right spiral up to 100 m - Joins RIGHT spiral to 100 m, radius 130 m, then level (#22); speed 23 m/s",55.9,22.87,100.0,47.63,77.68
+19,540.52,mission,#22,"Slalom gate 1 - Waypoint at 100 m, turns left 78 deg, then level (#23)",100.0,23.18,54.7,16.87,72.81
+20,563.69,mission,#23,"Slalom gate 2 - Waypoint at 100 m, turns right 67 deg, then level (#24)",99.9,23.16,55.4,17.33,71.64
+21,587.07,mission,#24,"Slalom gate 3 - Waypoint at 100 m, turns left 67 deg, then level (#25)",100.0,23.15,55.4,17.38,70.47
+22,610.45,mission,#25,"Slalom gate 4 - Waypoint at 100 m, turns right 67 deg, then level (#26)",99.9,23.17,55.2,17.26,69.30
+23,633.85,mission,#26,"Slalom gate 5 - Waypoint at 100 m, turns left 67 deg, then level (#27)",99.9,23.15,55.1,17.27,68.12
+24,657.24,mission,#27,"Slalom gate 6 - Waypoint at 100 m, turns right 67 deg, then level (#28)",100.0,23.16,55.9,17.83,66.94
+25,680.66,mission,#28,"Slalom gate 7 - Waypoint at 100 m, turns left 64 deg, then descends to 60 m (#29)",99.9,23.15,54.8,17.19,65.76
+26,710.84,mission,#29,"Upwind leg - Waypoint at 60 m, turns left 60 deg, then descends to 50 m (#30)",69.1,23.11,30.0,5.36,65.05
+27,756.11,mission,#30,"Left turn, 50 m - Waypoint at 50 m, turns left 90 deg, then descends to 45 m (#31)",50.1,23.12,54.7,17.25,63.30
+28,810.54,mission,#31,"Left onto downwind, 45 m - Waypoint at 45 m, then descends to 40 m (#34); landing sequence start (RTL jumps here); speed 22 m/s",45.1,23.13,55.1,17.57,60.71
+29,850.21,mission,#34,"Downwind, 40 m - Waypoint at 40 m, turns right 90 deg, then descends to 35 m (#35)",39.7,22.06,52.0,16.95,59.07
+30,878.84,mission,#35,"Right base, 35 m - Waypoint at 35 m, turns right 90 deg, then descends to 28 m (#36)",34.3,22.00,51.9,16.98,57.77
+31,901.05,mission,#36,"Right onto final, 28 m - Waypoint at 28 m, then final approach",27.1,21.90,50.9,16.48,56.81
+32,901.05,mission,#37,"Touchdown, runway 13 - LAND active: final approach, flare, touchdown on the runway",27.1,21.90,50.9,16.48,56.81
+33,940.89,flight,,"Touchdown at 21.1 m/s",0.5,21.10,-0.0,0.19,55.70
+34,983.27,flight,,"Stopped, 411 m rollout",-0.0,1.00,0.0,0.19,55.68

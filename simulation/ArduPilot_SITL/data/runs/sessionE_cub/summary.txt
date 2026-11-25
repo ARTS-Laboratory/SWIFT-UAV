@@ -1,0 +1,27 @@
+                  tag: 'sessionE_cub'
+           duration_s: 1.5944e+03
+            max_alt_m: 101.4352
+         min_V_air_ms: 21.2042
+     min_stall_margin: 1.1759
+        t_below_1p1Vs: 0
+         max_bank_deg: 36.6278
+        max_pitch_deg: 15.7168
+        max_alpha_deg: 8.6777
+             max_nz_g: 1.3502
+            takeoff_m: 113.6340
+            takeoff_s: 7.9500
+              sat_pct: [0 0 0]
+         thr_mean_air: 52.8516
+              thr_max: 100
+               ap_log: 1
+          touchdown_V: 21.2000
+       touchdown_sink: 0.8454
+        touchdown_x_m: 171.4604
+            rollout_m: 413.6337
+        threshold_h_m: 6.8139
+          threshold_V: 22.3117
+    threshold_to_td_m: 171.3362
+                 batt: [1×1 struct]
+               events: [1×1 struct]
+
+

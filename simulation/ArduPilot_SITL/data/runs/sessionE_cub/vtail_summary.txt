@@ -1,0 +1,7 @@
+PASS  Logged      out_rv in the run (159438 samples)
+PASS  Mixing      delta_e, delta_r flown = un-mix of the ruddervators (worst 0.000 deg)
+PASS  Travel      on a stop 0.00 % of airborne time; peak L 25.0 / R 25.0 of 25 deg (whole log)
+PASS  Pitch sign  takeoff rotation at 0.77 min: both surfaces TE up, delta_e -7.6 deg, nose up 22.5 deg/s
+PASS  Yaw sign    rudder into the turn: yaw/roll slope +0.16, same sign 100 % of 11831 samples
+PASS  Straight    wings level: delta_r -0.10 deg mean, left - right -0.19 deg, delta_e -2.82 deg
+Peak sideslip in turns 4.0 deg  |  peak delta_e 25.0 deg, delta_r 19.8 deg (whole log)  |  mixing gain 1, stops +/- 25 deg

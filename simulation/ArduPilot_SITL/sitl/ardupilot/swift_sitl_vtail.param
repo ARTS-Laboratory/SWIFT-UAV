@@ -1,0 +1,5 @@
+# SWIFT UAV - ArduPlane SITL V-tail outputs. Load AFTER the other parameter files.
+# Written by swift_vtail_add, 2026-11-14 23:25
+SERVO2_FUNCTION,79
+SERVO4_FUNCTION,80
+MIXING_GAIN,1

@@ -1,0 +1,24 @@
+                 tag: 'sessionD_cub'
+          duration_s: 1.0126e+03
+           max_alt_m: 121.1491
+        min_V_air_ms: 21.1055
+    min_stall_margin: 1.1705
+       t_below_1p1Vs: 0
+        max_bank_deg: 37.1534
+       max_pitch_deg: 16.1370
+       max_alpha_deg: 9.6745
+            max_nz_g: 1.4560
+           takeoff_m: 110.3734
+           takeoff_s: 7.8100
+             sat_pct: [0.1541 0.1541 0.1541]
+        thr_mean_air: 55.6269
+             thr_max: 100
+              ap_log: 0
+         touchdown_V: 21.1013
+      touchdown_sink: 0.8258
+       touchdown_x_m: 176.0246
+           rollout_m: 410.5423
+                batt: [1×1 struct]
+              events: [1×1 struct]
+
+

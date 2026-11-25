@@ -1,0 +1,18 @@
+                 tag: 'sessionA_ground'
+          duration_s: 156.8400
+           max_alt_m: 0
+        min_V_air_ms: 0.4926
+    min_stall_margin: 0.0273
+       t_below_1p1Vs: 156.8500
+        max_bank_deg: 0.0019
+       max_pitch_deg: 1.1336
+       max_alpha_deg: 14.0492
+            max_nz_g: 1.0720
+           takeoff_m: NaN
+           takeoff_s: NaN
+             sat_pct: [0.9818 0.9818 0.9818]
+        thr_mean_air: 0
+             thr_max: 0
+              ap_log: 0
+
+

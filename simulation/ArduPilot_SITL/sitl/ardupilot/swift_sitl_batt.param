@@ -1,0 +1,25 @@
+# SWIFT UAV - ArduPlane SITL battery parameters
+# Written by swift_battery_add, 2026-11-09 21:16
+# 12S 10 Ah LiPo. Load LAST, at boot: sim_vehicle.py ... --add-param-file=<this file>
+# analog monitor - the one SITL feeds (needs a reboot if changed)
+BATT_MONITOR,4
+# mAh, P.batt.Ah
+BATT_CAPACITY,10000
+# V, P.batt.Vcell_low x cells
+BATT_LOW_VOLT,42
+# V, P.batt.Vcell_crit x cells
+BATT_CRT_VOLT,39.6
+# mAh left at the reserve line (P.batt.SOC_res)
+BATT_LOW_MAH,2000
+# mAh, half the reserve
+BATT_CRT_MAH,1000
+# judge voltage on the sag-compensated (resting) estimate
+BATT_FS_VOLTSRC,1
+# low battery -> RTL
+BATT_FS_LOW_ACT,1
+# critical battery -> RTL (RTL_AUTOLAND=2 lands it)
+BATT_FS_CRT_ACT,1
+# V fallback if this SITL build ignores the JSON battery
+SIM_BATT_VOLTAGE,50.4
+# Ah, same pack for the fallback
+SIM_BATT_CAP_AH,10

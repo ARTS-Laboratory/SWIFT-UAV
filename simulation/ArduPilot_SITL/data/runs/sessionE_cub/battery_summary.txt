@@ -1,0 +1,17 @@
+duration_s         1594.37
+SOC_start_pct      100
+SOC_end_pct        29.662
+V_pack_min         43.1112
+V_cell_min         3.5926
+I_max              93.0459
+P_max_W            4255.56
+Wh_used            325.839
+mAh_used           7033.8
+P_avg_W            735.726
+min_left_at_avg    3.49854
+t_below_reserve    0
+t_low_volt         0
+t_crit_volt        0
+t_overload         0
+t_empty            0
+t_motor_over       0

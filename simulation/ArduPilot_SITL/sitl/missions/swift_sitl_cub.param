@@ -1,0 +1,17 @@
+# SWIFT UAV - SITL session C (KCUB runway 13 autoland)
+# Written by swift_sitl_cub v0.2, 2026-11-10 20:26
+# Load after plane.parm and swift_sitl.param (swift_sitl_batt.param last).
+# m/s  approach airspeed (= AIRSPEED_MIN)
+TECS_LAND_ARSPD,22
+# m/s  sink rate after the flare
+TECS_LAND_SINK,0.6
+# m    flare starts at this height ...
+LAND_FLARE_ALT,3
+# s    ... or this many seconds to touchdown
+LAND_FLARE_SEC,2
+# deg  nose-up target in the flare (tricycle gear)
+LAND_PITCH_DEG,1
+# s    disarm this long after touchdown
+LAND_DISARMDELAY,20
+# -    an RTL (incl. battery failsafe) jumps to the landing sequence
+RTL_AUTOLAND,2
